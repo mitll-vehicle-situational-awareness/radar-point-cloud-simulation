@@ -1,2 +1,2 @@
-# simulation
-program that generates simulated radar point cloud data
+# Radar Point Cloud Simulation
+Add later
