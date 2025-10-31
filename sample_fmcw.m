@@ -1,92 +1,166 @@
 %% === Clear and Setup ===
 clear all %#ok<CLALL>
-clc;
+
+% --- Radar Hardware Specs ---
+f0 = 60e9;                   % Center frequency (Hz)
+noRx = 4;                    % Number of receive antennas
+noChirps = 32;               % Number of pulses (chirps) in a frame
+fs = 12.5e6;                 % ADC sampling rate (Hz)
+noADC = 256;                 % Number of ADC samples per chirp
+slp = 144.858e12;            % Chirp rate (Hz/s)
+PRF = 1 / 200e-6;              % Pulse Repetition Frequency (Hz)
+
+% --- Simulation Control ---
+noFrames = 800;              % Number of frames to simulate
+frameRate = 155;             % Rate at which frames are collected (Hz)
+allFramesData = cell(1, noFrames);  % Cell array
+
+% --- Derived Parameters ---
+c = physconst('LightSpeed');
+tm = noADC / fs;             % Sweep time (s)
+bw = slp * tm;               % Sweep bandwidth (Hz)
+rangeRes = c / (2 * bw);       % Actual range resolution (m)
+pri = 1 / PRF;               % Pulse Repetition Interval (s)
+wavelength = c / f0;
+
+fprintf('System Range Resolution: %.3f meters\n', rangeRes);
 
 %% === Driving Scenario ===
-scenario = drivingScenario('SampleTime',0.1,'StopTime',10);
+timePerFrame = 1 / frameRate; % This is your new SampleTime
+requiredSimTime = noFrames * timePerFrame; % This is your new StopTime
+epsilon = timePerFrame/2; % For floating point precision
 
-road(scenario,[0 0; 100 0],'Lanes',lanespec(2));
+% Reference: https://www.mathworks.com/help/driving/ref/drivingscenario.trajectory.html
 
-egoVehicle = vehicle(scenario,'ClassID',1,'Position',[0 0 0]);
-waypoints = [0 0 0; 50 0 0];
-speed = 15;
-trajectory(egoVehicle,waypoints,speed);
+scenario = drivingScenario('StopTime',requiredSimTime + epsilon,'SampleTime',timePerFrame);
+road1 = [50 1 0; 2 0.9 0];
+road2 = [27 24 0; 27 -21 0];
+laneSpecification = lanespec(2,'Width',4);
+road(scenario, road1, 'Lanes', laneSpecification);
+road(scenario, road2, 'Lanes', laneSpecification);
 
-targetVeh1 = vehicle(scenario,'ClassID',1,'Position',[30 0 0]);
-targetVeh2 = vehicle(scenario,'ClassID',1,'Position',[45 -3.5 0]);
-waypoints2 = [45 -3.5 0; 70 -3.5 0];
-trajectory(targetVeh2,waypoints2,10);
+egoVehicle = vehicle(scenario,'ClassID',1,'Position',[5 -1 0]);
+waypoints = [5 -1 0; 16 -1 0; 40 -1 0];
+speed = [30; 0; 30];
+waittime = [0; 0.3; 0];
+trajectory(egoVehicle,waypoints,speed,waittime);
 
-%% === Radar Parameters ===
-fc = 77e9;             % Carrier frequency
-c = physconst('LightSpeed');
+% car = vehicle(scenario,'ClassID',1,'Position',[48 4 0],'PlotColor',[0.494 0.184 0.556], 'Name','Car');
+% waypoints = [47 3 0; 38 3 0; 10 3 0];
+% speed = [30; 0; 30];
+% waittime = [0; 0.3; 0];
+% trajectory(car,waypoints,speed,waittime);
 
-rangeRes = 0.5;        % desired range resolution (meters)
-tm = 5e-3;             % sweep time
-bw = c/(2*rangeRes);   % bandwidth
-sweepSlope = bw/tm;
+ambulance = vehicle(scenario,'ClassID',6,'Position',[25 22 0],'PlotColor',[0.466 0.674 0.188],'Name','Ambulance');
+waypoints = [25 22 0; 25 13 0; 25 6 0; 26 2 0; 33 -1 0; 45 -1 0];
+speed = 25;
+trajectory(ambulance,waypoints,speed);
 
-waveform = phased.FMCWWaveform('SweepTime',tm,'SweepBandwidth',bw,'SampleRate',2e6);
+targetVehicle = ambulance;
 
-tx = phased.Transmitter('PeakPower',0.1,'Gain',30);
-rx = phased.ReceiverPreamp('Gain',20,'NoiseFigure',5);
+%% === Preprocessing ===
+waveform = phased.FMCWWaveform('SweepTime', tm, 'SweepBandwidth', bw, 'SampleRate', fs);
 
-% Free space propagation channel
-channel = phased.FreeSpace('PropagationSpeed',c,'OperatingFrequency',fc);
+% Single antenna sending signal in all directions (kind of like a point light)
+txAntenna = phased.IsotropicAntennaElement('FrequencyRange', [58e9 62e9]); % f0 +- bw/2
 
-% Radar targets
-target1 = phased.RadarTarget('MeanRCS',10,'Model','Nonfluctuating');
-target2 = phased.RadarTarget('MeanRCS',10,'Model','Nonfluctuating');
+% Straight line of receivers
+rxArray = phased.ULA('NumElements', noRx, 'ElementSpacing', wavelength/2);
 
-%% === Simulation Loop ===
-numPulses = 64;
-numSamples = waveform.SampleRate*tm;
+% Amplifies outgoing signal
+tx = phased.Transmitter('PeakPower', 0.1, 'Gain', 30);
 
-radarEchoes = zeros(numSamples,numPulses);
+% Amplifies incoming signal
+rx = phased.ReceiverPreamp('Gain', 20, 'NoiseFigure', 5, 'SampleRate', fs);
 
-for k = 1:numPulses
-    advance(scenario);   % step the scenario
+% Narrowband signal radiator
+radiator = phased.Radiator('Sensor', txAntenna, 'OperatingFrequency', f0);
 
-    % --- Get target positions relative to ego vehicle ---
-    pos1 = targetVeh1.Position.';  % transpose to 3x1
-    pos2 = targetVeh2.Position.';
+% Collects incoming signal and turn into data
+collector = phased.Collector('Sensor', rxArray, 'OperatingFrequency', f0);
 
-    % Velocities (assuming constant for now)
-    vel1 = [0;0;0];
-    vel2 = [0;0;0];
-    radarVel = [0;0;0];
+% Simulates the air in between object and radar (e.g., air drag)
+channel = phased.FreeSpace('PropagationSpeed', c, 'OperatingFrequency', f0, ...
+    'SampleRate', fs, 'TwoWayPropagation', false);
 
-    % --- Transmit waveform ---
-    sig = waveform();
-    sig = tx(sig);
+% Simulates target reflection (simulated RCS)
+target = phased.RadarTarget('MeanRCS', 10, 'Model', 'Nonfluctuating', 'OperatingFrequency', f0);
 
-    % --- Propagate to targets and back ---
-    echo1 = channel(sig,[0;0;0], pos1, radarVel, vel1);
-    echo1 = target1(echo1);
+% Range-Doppler object
+rdresp = phased.RangeDopplerResponse(...
+    'RangeMethod', 'FFT', 'DopplerOutput', 'Speed', 'SweepSlope', slp, ...
+    'SampleRate', fs, 'OperatingFrequency', f0);
 
-    echo2 = channel(sig,[0;0;0], pos2, radarVel, vel2);
-    echo2 = target2(echo2);
+%% === Plotting ===
 
-    % --- Receive at radar ---
-    radarEchoes(:,k) = rx(echo1 + echo2);
+% Driving environment
+figScenario = figure('Name', 'Driving Scenario', 'Position', [100, 300, 700, 600]);
+axScenario = axes(figScenario);
+plot(scenario, 'Parent', axScenario);
+title(axScenario, 'Live Driving Scenario');
+
+% Range-Doppler Map
+figRD = figure('Name', 'Range-Doppler Map', 'Position', [850, 300, 700, 600]);
+axRD = axes(figRD);
+
+% zeros = empty array of zeros (m by n) where m = # range pulses, n = # chirps
+[~, range_grid, speed_grid] = rdresp(zeros(noADC, noChirps));
+hRD = imagesc(axRD, speed_grid, range_grid, zeros(length(range_grid), length(speed_grid)));
+hTitleRD = title(axRD, 'Range-Doppler Map (Initializing...)');
+xlabel(axRD, 'Velocity (m/s)');
+ylabel(axRD, 'Range (m)');
+colorbar(axRD);
+clim(axRD, [-20, 40]);
+
+numSamples = noADC;
+fprintf('Starting real-time simulation...\n');
+
+for frameIdx = 1:noFrames
+
+    % Advance the scenario and check if it's still running
+    isRunning = advance(scenario);
+    if ~isRunning
+        fprintf('\nSimulation stopped after %d frames.\n', frameIdx - 1);
+        break;
+    end
+
+    frameEchoes = zeros(numSamples, noChirps, noRx);
+
+    egoPos = egoVehicle.Position.';
+    egoVel = egoVehicle.Velocity.';
+    posTgt = targetVehicle.Position.';
+    velTgt = targetVehicle.Velocity.';
+    [~, angTgt] = rangeangle(posTgt, egoPos);
+
+    for k = 1:noChirps
+        sig = waveform();
+        sig_tx = tx(sig);
+        sig_rad = radiator(sig_tx, angTgt);
+        sig_prop = channel(sig_rad, egoPos, posTgt, egoVel, velTgt);
+        sig_refl = target(sig_prop);
+        sig_prop_back = channel(sig_refl, posTgt, egoPos, velTgt, egoVel);
+        sig_collected = collector(sig_prop_back, angTgt);
+        frameEchoes(:, k, :) = rx(sig_collected);
+    end
+
+    % Get the first antenna channel
+    firstChannelData = frameEchoes(:, :, 1);
+    [resp, ~, ~] = rdresp(firstChannelData);
+
+    % Redraw the driving env with new vehicle positions
+    plot(scenario, 'Parent', axScenario);
+
+    % Update Range-Doppler map
+    set(hRD, 'CData', mag2db(abs(resp)));
+    set(hTitleRD, 'String', sprintf('Range-Doppler Map (Frame %d, Time %.2f s)', ...
+        frameIdx, scenario.SimulationTime));
+
+    drawnow;
+    allFramesData{frameIdx} = frameEchoes; % Store frame data
 end
 
+fprintf('Simulation finished.\n');
+
 %% === Save Raw Radar Data ===
-save('raw_radar_data.mat','radarEchoes','waveform','fc','tm','sweepSlope');
-
-fprintf('Raw radar data saved to raw_radar_data.mat\n');
-
-%% === Range-Doppler Processing ===
-rdresp = phased.RangeDopplerResponse(...
-    'RangeMethod','FFT', ...
-    'DopplerOutput','Speed', ...
-    'SweepSlope',sweepSlope, ...
-    'SampleRate',waveform.SampleRate, ...
-    'OperatingFrequency',fc);
-
-figure;
-plotResponse(rdresp, radarEchoes);
-title('Range–Doppler Map (Forward Looking Radar)');
-xlabel('Velocity (m/s)');
-ylabel('Range (m)');
-colorbar;
+save('raw_multichannel_radar_data.mat', 'allFramesData', 'waveform', 'f0', 'tm', 'slp', '-v7.3');
+fprintf('Raw radar data for %d frames saved to raw_multichannel_radar_data.mat\n', noFrames);
