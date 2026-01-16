@@ -1,5 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+# TODO: add another radar/antenna based on EE team setup so we can calculate 2D location
+
+true_values = {'range': [], 'velocity': [], 'aoa':[]}
+measured_values = {'range': [], 'velocity': [], 'aoa':[]}
 
 def run_radar_simulation():
     # --- PARAMETERS ---
@@ -100,6 +104,7 @@ def run_radar_simulation():
     
     eps = 1e-12
     t_adc = np.arange(noADC) / fs
+
 
     # --- SIMULATION LOOP ---
     for t_now in np.arange(0.0, duration + UPDATE_RATE_SEC, UPDATE_RATE_SEC):
@@ -242,8 +247,18 @@ def run_radar_simulation():
         # *** MODIFIED PRINT STATEMENT ***
         print(f"Target Pos: ({current_x:.3f}, {current_y:.3f}) m | Range: {measured_range:.3f} m | "
               f"True Vel: {radial_velocity_continuous:.3f} m/s | Measured Vel: {measured_velocity:.3f} m/s | "
-              f"Measured AoA: {measured_aoa_deg:.2f}° | True Az: {np.rad2deg(true_azimuth_rad):.2f}°)")
+              f"True Az: {np.rad2deg(true_azimuth_rad):.2f}° | Measured AoA: {measured_aoa_deg:.2f}° ")
         
+        true_values['velocity'].append(radial_velocity_continuous)
+        measured_values['velocity'].append(measured_velocity)
+
+        true_values['range'].append(R_at_start)
+        measured_values['range'].append(measured_range)
+
+        true_values['aoa'].append(np.rad2deg(true_azimuth_rad))
+        measured_values['aoa'].append(measured_aoa_deg)
+        
+
         fig.canvas.draw_idle()
         fig.canvas.flush_events()
         plt.pause(0.001)
@@ -251,5 +266,41 @@ def run_radar_simulation():
     plt.ioff()
     plt.show()
 
+# Function to plot differences
+
+def plot_differences(true_values, measured_values, title):
+    range_diff = np.array(true_values['range']) - np.array(measured_values['range'])
+    velocity_diff = np.array(true_values['velocity']) - np.array(measured_values['velocity'])
+    aoa_diff = np.array(true_values['aoa']) - np.array(measured_values['aoa'])
+
+    # Create subplots
+    fig, axs = plt.subplots(3, 1, figsize=(10, 8))
+
+    # Plot Range Difference
+    axs[0].plot(range_diff, label='Range Difference', color='blue')
+    axs[0].set_title('Difference in Range')
+    axs[0].set_xlabel('Time (s)')
+    axs[0].set_ylabel('Difference (m)')
+    axs[0].legend()
+
+    # Plot Velocity Difference
+    axs[1].plot(velocity_diff, label='Velocity Difference', color='orange')
+    axs[1].set_title('Difference in Velocity')
+    axs[1].set_xlabel('Time (s)')
+    axs[1].set_ylabel('Difference (m/s)')
+    axs[1].legend()
+
+    # Plot AoA Difference
+    axs[2].plot(aoa_diff, label='AoA Difference', color='green')
+    axs[2].set_title('Difference in Angle of Arrival')
+    axs[2].set_xlabel('Time (s)')
+    axs[2].set_ylabel('Difference (degrees)')
+    axs[2].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
     run_radar_simulation()
+    plot_differences(true_values, measured_values, 'Differences between True and Measured Values')
