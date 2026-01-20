@@ -149,6 +149,16 @@ def run_radar_simulation():
                 beat = A_m * const_phase_m * antenna_phase * doppler_factor * np.exp(1j * 2 * np.pi * fb_term * t_adc)
                 data[:, rx, m] = beat
 
+        # Add gaussian white noise to ADC signal
+        # TODO: expected result -> shifting due to noise
+        # no noise: 2.811, 1.197, 2.923, 1.222
+        SNR_dB = 20  # Signal-to-Noise Ratio in dB (lower = more noise)
+        signal_power = np.mean(np.abs(data) ** 2)
+        noise_power = signal_power / (10 ** (SNR_dB / 10.0))
+        noise_std = np.sqrt(noise_power / 2.0)  # Divide by 2 for real and imaginary components
+        noise = (noise_std * np.random.randn(*data.shape)) + 1j * (noise_std * np.random.randn(*data.shape))
+        data = data + noise
+
         # Window + Range FFT
         hammingWindow = np.hamming(noADC).reshape(noADC, 1, 1)
         windowed = data * hammingWindow
@@ -186,8 +196,7 @@ def run_radar_simulation():
         # 3 or 5 points
         # sinc / splines
         # depends on the model -> (e.g. spec-limited - not in this case) 
-        # TODO: add a vector of white noise to signal (to ADC)
-        # TODO: expected result -> shifting due to noise
+       
         FFTDOPSIZE = RD_dB.shape[1]
         RD_mag_row = 10**(RD_dB[range_idx, :] / 20.0)
 
