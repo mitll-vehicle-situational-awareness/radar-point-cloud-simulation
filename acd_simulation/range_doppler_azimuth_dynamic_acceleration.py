@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 true_values = {'range': [], 'velocity': [], 'aoa':[]}
 measured_values = {'range': [], 'velocity': [], 'aoa':[]}
 
-def run_radar_simulation():
+# CHANGE THIS FOR NOISE
+SNR_dB = 5  # Signal-to-Noise Ratio in dB (lower = more noise)
+
+def run_radar_simulation():    
     # --- PARAMETERS ---
     noADC = 256
     noRx = 2
@@ -29,6 +32,13 @@ def run_radar_simulation():
     # FFT sizes
     FFTRNGSIZE = int(2 ** np.ceil(np.log2(noADC)))
     FFTDOPSIZE = int(2 ** np.ceil(np.log2(noChirps)))
+    
+    print(f"FFT Range Size: {FFTRNGSIZE}") # 256
+    print(f"FFT Doppler Size: {FFTDOPSIZE}") # 128
+    
+    # NOTE: Processing gain (the thing that help boost the peak you see in the profile graph) = (10 * log base 10 (FFTRNGSIZE)) + (10 * log base 10 (FFTDOPSIZE)) => 24 + 21 = 45 db (total processing gain from fft)
+    # AKA. each time u do a fft, you add gain which makes the target more "visuable"
+    # Actual peak difference = SNR + Processing Gain
 
     # --- MODIFIED TARGET MOTION PARAMETERS (Constant Acceleration) ---
     radarPos = np.array([0.0, 0.0])
@@ -44,7 +54,7 @@ def run_radar_simulation():
     target_acceleration = np.array([0.05, -0.07])      # Example: Constant acceleration vector (m/s^2)
     
     duration = 10.0
-    UPDATE_RATE_SEC = 0.1
+    UPDATE_RATE_SEC = 0.2
     # -----------------------------------------------------------------
 
     # Axes
@@ -62,7 +72,7 @@ def run_radar_simulation():
     line_range_profile, = ax1.plot(rangeAxis, np.zeros(FFTRNGSIZE), linewidth=2)
     ax1.set_xlabel("Range (m)")
     ax1.set_ylabel("Power (dB)")
-    ax1.set_title("Range Profile (Antenna 1)")
+    ax1.set_title(f"Range Profile (SNR = {SNR_dB} db)")
     ax1.set_ylim(-100, 0)
     ax1.grid(True)
 
@@ -149,15 +159,27 @@ def run_radar_simulation():
                 beat = A_m * const_phase_m * antenna_phase * doppler_factor * np.exp(1j * 2 * np.pi * fb_term * t_adc)
                 data[:, rx, m] = beat
 
+        # AWGN = Additive White Gaussian Noise
+        # TODO: Add a Constant False Alarm Rate - excludes points when SNR is too low       
+        
         # Add gaussian white noise to ADC signal
         # TODO: expected result -> shifting due to noise
         # no noise: 2.811, 1.197, 2.923, 1.222
-        SNR_dB = 20  # Signal-to-Noise Ratio in dB (lower = more noise)
+
         signal_power = np.mean(np.abs(data) ** 2)
         noise_power = signal_power / (10 ** (SNR_dB / 10.0))
-        noise_std = np.sqrt(noise_power / 2.0)  # Divide by 2 for real and imaginary components
+        noise_std = np.sqrt(noise_power / 2.0) # Divide by 2 for real and imaginary components
         noise = (noise_std * np.random.randn(*data.shape)) + 1j * (noise_std * np.random.randn(*data.shape))
         data = data + noise
+        print(f"DEBUG: Amplitude of Returning Signal: {A_m}")
+        print(f"DEBUG: Old: {np.abs(A_m)**2} | New: {np.mean(np.abs(data) ** 2)}")
+
+        # checking phase error (before fft)
+        phi_raw = np.angle(
+            (data[:,1,0] + eps) / 
+            (data[:,0,0] + eps)
+        )
+        print("DEBUG: Raw ADC phase std (deg):", np.std(phi_raw) * 180 / np.pi)
 
         # Window + Range FFT
         hammingWindow = np.hamming(noADC).reshape(noADC, 1, 1)
@@ -174,6 +196,18 @@ def run_radar_simulation():
         slow_win = np.hamming(noChirps)
         range_fft_rx1 = range_fft_rx1 * slow_win[np.newaxis, :]
         range_fft_rx2 = range_fft_rx2 * slow_win[np.newaxis, :]
+        
+        # Find peak range bin (no Doppler yet)
+        rng_idx = np.argmax(np.mean(np.abs(range_fft_rx1), axis=1))
+
+        # checking phase error (after fft)
+        phi_rng = np.angle(
+            (range_fft_rx2[rng_idx, :] + eps) /
+            (range_fft_rx1[rng_idx, :] + eps)
+        )
+
+        print("DEBUG: Post-range FFT phase std (deg):", np.std(phi_rng) * 180 / np.pi)
+
 
         rd_rx1 = np.fft.fftshift(np.fft.fft(range_fft_rx1, FFTDOPSIZE, axis=1), axes=1)
         rd_rx2 = np.fft.fftshift(np.fft.fft(range_fft_rx2, FFTDOPSIZE, axis=1), axes=1)
@@ -197,14 +231,15 @@ def run_radar_simulation():
         # sinc / splines
         # depends on the model -> (e.g. spec-limited - not in this case) 
        
-        FFTDOPSIZE = RD_dB.shape[1]
-        RD_mag_row = 10**(RD_dB[range_idx, :] / 20.0)
+        FFTRANGESIZE, FFTDOPSIZE = RD_dB.shape[0], RD_dB.shape[1]
+        doppler_profile_mag = 10**(RD_dB[range_idx, :] / 20.0)
+        range_profile_mag = 10**(RD_dB[:, dop_idx] / 20.0)
 
         if dop_idx > 0 and dop_idx < FFTDOPSIZE - 1:
-            P0 = RD_mag_row[dop_idx]
+            P0 = doppler_profile_mag[dop_idx]
             # two biggest point next to it
-            P0_left = RD_mag_row[dop_idx - 1]
-            P0_right = RD_mag_row[dop_idx + 1]
+            P0_left = doppler_profile_mag[dop_idx - 1]
+            P0_right = doppler_profile_mag[dop_idx + 1]
 
             numerator = P0_left - P0_right
             denominator = 2 * (P0_left + P0_right - 2 * P0)
@@ -233,27 +268,55 @@ def run_radar_simulation():
         measured_aoa_rad = np.arcsin(sin_theta)
         measured_aoa_deg = np.rad2deg(measured_aoa_rad)
         # print("Measure AoA: ", measured_aoa_deg)
-        measured_range = rangeAxis[range_idx]
+        
+        # quadratic interpolation on range
+        if range_idx > 0 and range_idx < FFTRANGESIZE - 1:
+            y0 = range_profile_mag[range_idx]
+            y_left = range_profile_mag[range_idx - 1]
+            y_right = range_profile_mag[range_idx + 1]
+
+            denom = 2 * (y_left + y_right - 2 * y0)
+            if denom != 0:
+                delta_r = (y_left - y_right) / denom
+            else:
+                delta_r = 0
+            
+            rangeBinSize = rangeAxis[1] - rangeAxis[0]
+            measured_range = rangeAxis[range_idx] + (delta_r * rangeBinSize)
+        else:
+            measured_range = rangeAxis[range_idx]
+        
+        # measured_range = rangeAxis[range_idx]
         # Measured velocity comes from the center of the detected FFT bin
         # measured_velocity = velocityAxis[dop_idx]
 
         # --- PLOTTING UPDATE ---
-        line_range_profile.set_ydata(20.0 * np.log10(np.abs(range_fft_rx1[:, 0]) + eps))
+        # range_profile_db = 20.0 * np.log10(np.abs(range_fft_rx1[:, 0]) + eps)
+        # line_range_profile.set_ydata(range_profile_db)
+
+        # Normalizing range profile plot so that the peak is at 0
+        raw_range_profile = 20.0 * np.log10(np.abs(range_fft_rx1[:, 0]) + eps)
+        normalized_range_profile = raw_range_profile - np.max(raw_range_profile) # normalize so the peak is at 0 dB
+        line_range_profile.set_ydata(normalized_range_profile)
+        ax1.set_ylim(-100, 10)
+
         ax1.relim()
         ax1.autoscale_view(scaley=True)
 
-        im.set_data(RD_dB)
-        im.set_clim(vmin=np.max(RD_dB) - 60, vmax=np.max(RD_dB))
+        im.set_data(RD_dB) # update rangle-doppler map
+        im.set_clim(vmin=np.max(RD_dB) - 60, vmax=np.max(RD_dB)) # adjusts color in noise floor
 
         # Top-down AoA line
         L = R_at_start * 1.5
-        true_azimuth_rad = np.arctan2(current_y - radarPos[1], current_x - radarPos[0])
+        dy = current_y - radarPos[1]
+        dx = current_x - radarPos[0]
+        true_azimuth_rad = np.arctan2(dy, dx)
         aoa_line.set_data([radarPos[0], radarPos[0] + L * np.cos(measured_aoa_rad)],
                           [radarPos[1], radarPos[1] + L * np.sin(measured_aoa_rad)])
         ax3.set_title(f"Top-down view (Time: {t_now:.1f}s, True Az: {np.rad2deg(true_azimuth_rad):.2f}°)")
 
+        # DEBUG
         print(f"\n--- TIME: {t_now:.1f}s ---")
-        # *** MODIFIED PRINT STATEMENT ***
         print(f"Target Pos: ({current_x:.3f}, {current_y:.3f}) m | Range: {measured_range:.3f} m | "
               f"True Vel: {radial_velocity_continuous:.3f} m/s | Measured Vel: {measured_velocity:.3f} m/s | "
               f"True Az: {np.rad2deg(true_azimuth_rad):.2f}° | Measured AoA: {measured_aoa_deg:.2f}° ")
@@ -277,13 +340,14 @@ def run_radar_simulation():
 
 # Function to plot differences
 
-def plot_differences(true_values, measured_values, title):
+def plot_differences(true_values, SNR, measured_values, title):
     range_diff = np.array(true_values['range']) - np.array(measured_values['range'])
     velocity_diff = np.array(true_values['velocity']) - np.array(measured_values['velocity'])
     aoa_diff = np.array(true_values['aoa']) - np.array(measured_values['aoa'])
 
     # Create subplots
     fig, axs = plt.subplots(3, 1, figsize=(10, 8))
+    fig.suptitle(title, fontsize=16, fontweight='bold')
 
     # Plot Range Difference
     axs[0].plot(range_diff, label='Range Difference', color='blue')
@@ -308,8 +372,39 @@ def plot_differences(true_values, measured_values, title):
 
     plt.tight_layout()
     plt.show()
+    
+    # --- ACCURACY METRICS ---
+    if len(measured_values['range']) > 1:
+        keys = ['range', 'velocity', 'aoa']
+        units = ['m', 'm/s', 'deg']
+        
+        print(f"\n{'='*30}")
+        print(f"VALIDATION (SNR = {SNR} dB)")
+        print(f"{'='*30}")
+        
+        for key, unit in zip(keys, units):
+            err = np.array(true_values[key]) - np.array(measured_values[key])
+            
+            # Bias (Mean Error) -> should be close to 0
+            bias = np.mean(err)
+            
+            # Jitter (Standard Deviation) -> the fuzziness
+            sigma = np.std(err)
+            
+            # RMSE (Total Accuracy)
+            rmse = np.sqrt(np.mean(err**2))
+            
+            # change m to mm for readability
+            scale = 1000 if unit != 'deg' else 1
+            s_unit = 'mm' if unit != 'deg' else 'deg'
+            
+            print(f"{key.capitalize()}:")
+            print(f"  Bias (Offset): {bias*scale:+.3f} {s_unit}")
+            print(f"  Jitter (Std):  {sigma*scale:.3f} {s_unit}")
+            print(f"  Total (RMSE):  {rmse*scale:.3f} {s_unit}")
+            print(f"{'-'*30}")
 
 
 if __name__ == "__main__":
     run_radar_simulation()
-    plot_differences(true_values, measured_values, 'Differences between True and Measured Values')
+    plot_differences(true_values, SNR_dB, measured_values, 'Differences between True and Measured Values')
