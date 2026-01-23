@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 def polar_to_cartesian(range_m, azimuth_rad, radar_pos, elevation_rad=0.0):
     """Convert polar/spherical coordinates to Cartesian coordinates.
@@ -60,7 +61,7 @@ def run_fmcw_radar_simulation():
     
     # --- TARGET TRAJECTORY PARAMETERS ---
     radarPos = np.array([0.0, 0.0])  # Radar position [x, y] in meters
-    startPos = np.array([5.0, 8.0])  # Initial target position [x, y]
+    startPos = np.array([3.0, 6.0])  # Initial target position [x, y]
     duration = 12.0                   # Simulation duration (s)
     UPDATE_RATE_SEC = 0.2            # Update rate for visualization (s)
     
@@ -455,7 +456,27 @@ def run_fmcw_radar_simulation():
         'true_azimuths': true_azimuths
     }
 
+def export_csv(csv_filename):
+    # Export detected positions to CSV
+    with open(csv_filename, 'w', newline='') as csvfile:
+        fieldnames = ['time_s', 'detected_x_m', 'detected_y_m', 'true_x_m', 'true_y_m', 'position_error_m']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for i in range(len(results['time'])):
+            writer.writerow({
+                'time_s': results['time'][i],
+                'detected_x_m': results['est_positions'][i][0],
+                'detected_y_m': results['est_positions'][i][1],
+                'true_x_m': results['true_positions'][i][0],
+                'true_y_m': results['true_positions'][i][1],
+                'position_error_m': results['position_errors'][i]
+            })
+    
+    print(f"\nDetected positions exported to: {csv_filename}")
 
 if __name__ == "__main__":
     results = run_fmcw_radar_simulation()
+    export_csv("detected_positions2.csv")
+    
 
