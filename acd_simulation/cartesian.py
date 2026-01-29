@@ -41,7 +41,7 @@ def run_fmcw_radar_simulation():
     
     # Chirp parameters
     chirpTime = noADC / fs   # Chirp duration (s)
-    BW = 4e9                 # Bandwidth (Hz)
+    BW = 4e9                 # Bandwidth (Hz)       # inversely proportional to range resolution (measured range)
     slp = BW / chirpTime     # Chirp slope (Hz/s)
     PRI = 300e-6             # Pulse repetition interval (s)
     PRF = 1.0 / PRI          # Pulse repetition frequency (Hz)

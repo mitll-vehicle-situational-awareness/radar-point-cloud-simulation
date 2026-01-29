@@ -1,0 +1,176 @@
+FFT Range Size: 256
+FFT Doppler Size: 128
+SNR Setting: 5 dB
+
+--- TIME: 0.0s ---
+Target: Runner | True Pos: (1.941, 6.879) m | Measured Pos: (2.012, 6.861) m | True Range: 7.147 m | Measured Range: 7.149 m | True Vel: -0.670 m/s | Measured Vel: -0.666 m/s | True Az: 74.24° | Measured AoA: 73.66°
+
+--- TIME: 0.2s ---
+Target: Runner | True Pos: (1.884, 6.754) m | Measured Pos: (1.800, 6.776) m | True Range: 7.012 m | Measured Range: 7.011 m | True Vel: -0.680 m/s | Measured Vel: -0.678 m/s | True Az: 74.41° | Measured AoA: 75.13°
+Target: FastCar | True Pos: (9.000, 2.000) m | Measured Pos: (9.003, 1.985) m | True Range: 9.220 m | Measured Range: 9.220 m | True Vel: -2.440 m/s | Measured Vel: -2.441 m/s | True Az: 12.53° | Measured AoA: 12.43°
+
+--- TIME: 0.4s ---
+Target: Runner | True Pos: (1.829, 6.627) m | Measured Pos: (1.809, 6.632) m | True Range: 6.875 m | Measured Range: 6.874 m | True Vel: -0.691 m/s | Measured Vel: -0.694 m/s | True Az: 74.57° | Measured AoA: 74.75°
+Target: FastCar | True Pos: (8.500, 2.000) m | Measured Pos: (8.501, 1.994) m | True Range: 8.732 m | Measured Range: 8.732 m | True Vel: -2.434 m/s | Measured Vel: -2.431 m/s | True Az: 13.24° | Measured AoA: 13.20°
+
+--- TIME: 0.6s ---
+Target: Runner | True Pos: (1.776, 6.498) m | Measured Pos: (1.838, 6.483) m | True Range: 6.736 m | Measured Range: 6.738 m | True Vel: -0.701 m/s | Measured Vel: -0.705 m/s | True Az: 74.71° | Measured AoA: 74.17°
+Target: FastCar | True Pos: (8.000, 2.000) m | Measured Pos: (7.997, 2.009) m | True Range: 8.246 m | Measured Range: 8.246 m | True Vel: -2.425 m/s | Measured Vel: -2.421 m/s | True Az: 14.04° | Measured AoA: 14.10°
+
+--- TIME: 0.8s ---
+Target: Runner | True Pos: (1.725, 6.365) m | Measured Pos: (1.669, 6.380) m | True Range: 6.595 m | Measured Range: 6.595 m | True Vel: -0.712 m/s | Measured Vel: -0.713 m/s | True Az: 74.84° | Measured AoA: 75.34°
+Target: FastCar | True Pos: (7.500, 2.000) m | Measured Pos: (7.501, 1.990) m | True Range: 7.762 m | Measured Range: 7.761 m | True Vel: -2.416 m/s | Measured Vel: -2.413 m/s | True Az: 14.93° | Measured AoA: 14.86°
+
+--- TIME: 1.0s ---
+Target: Runner | True Pos: (1.676, 6.230) m | Measured Pos: (1.684, 6.226) m | True Range: 6.451 m | Measured Range: 6.449 m | True Vel: -0.723 m/s | Measured Vel: -0.721 m/s | True Az: 74.94° | Measured AoA: 74.87°
+Target: FastCar | True Pos: (7.000, 2.000) m | Measured Pos: (6.999, 1.995) m | True Range: 7.280 m | Measured Range: 7.278 m | True Vel: -2.404 m/s | Measured Vel: -2.405 m/s | True Az: 15.95° | Measured AoA: 15.91°
+
+--- TIME: 1.2s ---
+Target: Runner | True Pos: (1.629, 6.091) m | Measured Pos: (1.592, 6.099) m | True Range: 6.305 m | Measured Range: 6.303 m | True Vel: -0.734 m/s | Measured Vel: -0.730 m/s | True Az: 75.03° | Measured AoA: 75.37°
+Target: FastCar | True Pos: (6.500, 2.000) m | Measured Pos: (6.496, 2.010) m | True Range: 6.801 m | Measured Range: 6.800 m | True Vel: -2.389 m/s | Measured Vel: -2.394 m/s | True Az: 17.10° | Measured AoA: 17.19°
+
+--- TIME: 1.4s ---
+Target: Runner | True Pos: (1.584, 5.950) m | Measured Pos: (1.637, 5.934) m | True Range: 6.158 m | Measured Range: 6.155 m | True Vel: -0.745 m/s | Measured Vel: -0.743 m/s | True Az: 75.09° | Measured AoA: 74.57°
+Target: FastCar | True Pos: (6.000, 2.000) m | Measured Pos: (5.998, 2.014) m | True Range: 6.325 m | Measured Range: 6.327 m | True Vel: -2.372 m/s | Measured Vel: -2.370 m/s | True Az: 18.43° | Measured AoA: 18.56°
+
+--- TIME: 1.6s ---
+Target: Runner | True Pos: (1.541, 5.807) m | Measured Pos: (1.495, 5.815) m | True Range: 6.008 m | Measured Range: 6.005 m | True Vel: -0.756 m/s | Measured Vel: -0.760 m/s | True Az: 75.14° | Measured AoA: 75.58°
+Target: FastCar | True Pos: (5.500, 2.000) m | Measured Pos: (5.500, 1.994) m | True Range: 5.852 m | Measured Range: 5.850 m | True Vel: -2.349 m/s | Measured Vel: -2.347 m/s | True Az: 19.98° | Measured AoA: 19.93°
+
+--- TIME: 1.8s ---
+Target: Runner | True Pos: (1.500, 5.660) m | Measured Pos: (1.521, 5.652) m | True Range: 5.855 m | Measured Range: 5.853 m | True Vel: -0.767 m/s | Measured Vel: -0.770 m/s | True Az: 75.16° | Measured AoA: 74.93°
+Target: FastCar | True Pos: (5.000, 2.000) m | Measured Pos: (5.002, 2.003) m | True Range: 5.385 m | Measured Range: 5.388 m | True Vel: -2.321 m/s | Measured Vel: -2.326 m/s | True Az: 21.80° | Measured AoA: 21.82°
+
+--- TIME: 2.0s ---
+Target: Runner | True Pos: (1.461, 5.511) m | Measured Pos: (1.535, 5.489) m | True Range: 5.701 m | Measured Range: 5.700 m | True Vel: -0.778 m/s | Measured Vel: -0.779 m/s | True Az: 75.15° | Measured AoA: 74.38°
+Target: FastCar | True Pos: (4.500, 2.000) m | Measured Pos: (4.498, 1.999) m | True Range: 4.924 m | Measured Range: 4.922 m | True Vel: -2.285 m/s | Measured Vel: -2.282 m/s | True Az: 23.96° | Measured AoA: 23.96°
+
+--- TIME: 2.2s ---
+Target: Runner | True Pos: (1.424, 5.358) m | Measured Pos: (1.266, 5.399) m | True Range: 5.544 m | Measured Range: 5.545 m | True Vel: -0.788 m/s | Measured Vel: -0.786 m/s | True Az: 75.12° | Measured AoA: 76.80°
+Target: FastCar | True Pos: (4.000, 2.000) m | Measured Pos: (3.997, 2.000) m | True Range: 4.472 m | Measured Range: 4.470 m | True Vel: -2.236 m/s | Measured Vel: -2.232 m/s | True Az: 26.57° | Measured AoA: 26.59°
+
+--- TIME: 2.4s ---
+Target: Runner | True Pos: (1.389, 5.203) m | Measured Pos: (1.272, 5.237) m | True Range: 5.386 m | Measured Range: 5.389 m | True Vel: -0.799 m/s | Measured Vel: -0.795 m/s | True Az: 75.05° | Measured AoA: 76.35°
+Target: FastCar | True Pos: (3.500, 2.000) m | Measured Pos: (3.507, 1.991) m | True Range: 4.031 m | Measured Range: 4.033 m | True Vel: -2.171 m/s | Measured Vel: -2.167 m/s | True Az: 29.74° | Measured AoA: 29.58°
+
+--- TIME: 2.6s ---
+Target: Runner | True Pos: (1.356, 5.046) m | Measured Pos: (0.399, 5.207) m | True Range: 5.225 m | Measured Range: 5.222 m | True Vel: -0.810 m/s | Measured Vel: -0.806 m/s | True Az: 74.96° | Measured AoA: 85.62°
+Target: FastCar | True Pos: (3.000, 2.000) m | Measured Pos: (3.002, 1.993) m | True Range: 3.606 m | Measured Range: 3.603 m | True Vel: -2.080 m/s | Measured Vel: -2.081 m/s | True Az: 33.69° | Measured AoA: 33.59°
+
+--- TIME: 2.8s ---
+Target: Runner | True Pos: (1.325, 4.885) m | Measured Pos: (1.120, 4.935) m | True Range: 5.062 m | Measured Range: 5.061 m | True Vel: -0.821 m/s | Measured Vel: -0.824 m/s | True Az: 74.82° | Measured AoA: 77.22°
+Target: FastCar | True Pos: (2.500, 2.000) m | Measured Pos: (2.496, 2.003) m | True Range: 3.202 m | Measured Range: 3.200 m | True Vel: -1.952 m/s | Measured Vel: -1.952 m/s | True Az: 38.66° | Measured AoA: 38.75°
+
+--- TIME: 3.0s ---
+Target: Runner | True Pos: (1.296, 4.722) m | Measured Pos: (1.217, 4.745) m | True Range: 4.896 m | Measured Range: 4.898 m | True Vel: -0.832 m/s | Measured Vel: -0.836 m/s | True Az: 74.65° | Measured AoA: 75.62°
+Target: FastCar | True Pos: (2.000, 2.000) m | Measured Pos: (2.002, 1.997) m | True Range: 2.828 m | Measured Range: 2.828 m | True Vel: -1.768 m/s | Measured Vel: -1.764 m/s | True Az: 45.00° | Measured AoA: 44.94°
+
+--- TIME: 3.2s ---
+Target: Runner | True Pos: (1.269, 4.555) m | Measured Pos: (0.989, 4.622) m | True Range: 4.729 m | Measured Range: 4.727 m | True Vel: -0.842 m/s | Measured Vel: -0.843 m/s | True Az: 74.43° | Measured AoA: 77.92°
+Target: FastCar | True Pos: (1.500, 2.000) m | Measured Pos: (1.502, 2.002) m | True Range: 2.500 m | Measured Range: 2.502 m | True Vel: -1.500 m/s | Measured Vel: -1.499 m/s | True Az: 53.13° | Measured AoA: 53.12°
+
+--- TIME: 3.4s ---
+Target: Runner | True Pos: (1.244, 4.386) m | Measured Pos: (1.219, 4.396) m | True Range: 4.559 m | Measured Range: 4.562 m | True Vel: -0.852 m/s | Measured Vel: -0.851 m/s | True Az: 74.17° | Measured AoA: 74.50°
+Target: FastCar | True Pos: (1.000, 2.000) m | Measured Pos: (0.995, 2.005) m | True Range: 2.236 m | Measured Range: 2.238 m | True Vel: -1.118 m/s | Measured Vel: -1.115 m/s | True Az: 63.43° | Measured AoA: 63.60°
+
+--- TIME: 3.6s ---
+Target: Runner | True Pos: (1.221, 4.215) m | Measured Pos: (1.483, 4.128) m | True Range: 4.388 m | Measured Range: 4.387 m | True Vel: -0.862 m/s | Measured Vel: -0.860 m/s | True Az: 73.84° | Measured AoA: 70.23°
+Target: FastCar | True Pos: (0.500, 2.000) m | Measured Pos: (0.482, 2.004) m | True Range: 2.062 m | Measured Range: 2.061 m | True Vel: -0.606 m/s | Measured Vel: -0.602 m/s | True Az: 75.96° | Measured AoA: 76.49°
+
+--- TIME: 3.8s ---
+Target: Runner | True Pos: (1.200, 4.040) m | Measured Pos: (1.012, 4.090) m | True Range: 4.214 m | Measured Range: 4.213 m | True Vel: -0.872 m/s | Measured Vel: -0.866 m/s | True Az: 73.46° | Measured AoA: 76.10°
+
+--- TIME: 4.0s ---
+Target: Runner | True Pos: (1.181, 3.863) m | Measured Pos: (1.106, 3.888) m | True Range: 4.039 m | Measured Range: 4.042 m | True Vel: -0.881 m/s | Measured Vel: -0.883 m/s | True Az: 73.00° | Measured AoA: 74.11°
+Target: FastCar | True Pos: (-0.500, 2.000) m | Measured Pos: (0.508, 1.998) m | True Range: 2.062 m | Measured Range: 2.062 m | True Vel: 0.606 m/s | Measured Vel: 0.602 m/s | True Az: 104.04° | Measured AoA: 75.73°
+
+--- TIME: 4.2s ---
+Target: Runner | True Pos: (1.164, 3.682) m | Measured Pos: (1.171, 3.679) m | True Range: 3.862 m | Measured Range: 3.861 m | True Vel: -0.890 m/s | Measured Vel: -0.893 m/s | True Az: 72.46° | Measured AoA: 72.34°
+Target: FastCar | True Pos: (-1.000, 2.000) m | Measured Pos: (1.000, 2.003) m | True Range: 2.236 m | Measured Range: 2.239 m | True Vel: 1.118 m/s | Measured Vel: 1.115 m/s | True Az: 116.57° | Measured AoA: 63.47°
+
+--- TIME: 4.4s ---
+Target: Runner | True Pos: (1.149, 3.499) m | Measured Pos: (1.135, 3.501) m | True Range: 3.683 m | Measured Range: 3.680 m | True Vel: -0.898 m/s | Measured Vel: -0.901 m/s | True Az: 71.82° | Measured AoA: 72.04°
+
+--- TIME: 4.6s ---
+Target: Runner | True Pos: (1.136, 3.314) m | Measured Pos: (1.082, 3.330) m | True Range: 3.503 m | Measured Range: 3.501 m | True Vel: -0.905 m/s | Measured Vel: -0.906 m/s | True Az: 71.08° | Measured AoA: 71.99°
+
+--- TIME: 4.8s ---
+Target: Runner | True Pos: (1.125, 3.125) m | Measured Pos: (1.096, 3.138) m | True Range: 3.321 m | Measured Range: 3.324 m | True Vel: -0.911 m/s | Measured Vel: -0.911 m/s | True Az: 70.20° | Measured AoA: 70.74°
+
+--- TIME: 5.0s ---
+Target: Runner | True Pos: (1.116, 2.934) m | Measured Pos: (1.110, 2.938) m | True Range: 3.139 m | Measured Range: 3.141 m | True Vel: -0.915 m/s | Measured Vel: -0.914 m/s | True Az: 69.17° | Measured AoA: 69.31°
+
+--- TIME: 5.2s ---
+Target: Runner | True Pos: (1.109, 2.739) m | Measured Pos: (1.100, 2.745) m | True Range: 2.955 m | Measured Range: 2.957 m | True Vel: -0.918 m/s | Measured Vel: -0.916 m/s | True Az: 67.96° | Measured AoA: 68.16°
+
+--- TIME: 5.4s ---
+Target: Runner | True Pos: (1.104, 2.542) m | Measured Pos: (1.080, 2.553) m | True Range: 2.772 m | Measured Range: 2.772 m | True Vel: -0.918 m/s | Measured Vel: -0.916 m/s | True Az: 66.53° | Measured AoA: 67.06°
+
+--- TIME: 5.6s ---
+Target: Runner | True Pos: (1.101, 2.343) m | Measured Pos: (1.093, 2.346) m | True Range: 2.588 m | Measured Range: 2.588 m | True Vel: -0.915 m/s | Measured Vel: -0.914 m/s | True Az: 64.83° | Measured AoA: 65.02°
+
+--- TIME: 5.8s ---
+Target: Runner | True Pos: (1.100, 2.140) m | Measured Pos: (1.099, 2.138) m | True Range: 2.406 m | Measured Range: 2.404 m | True Vel: -0.907 m/s | Measured Vel: -0.908 m/s | True Az: 62.80° | Measured AoA: 62.79°
+
+--- TIME: 6.0s ---
+Target: Runner | True Pos: (1.101, 1.935) m | Measured Pos: (1.087, 1.940) m | True Range: 2.226 m | Measured Range: 2.224 m | True Vel: -0.894 m/s | Measured Vel: -0.898 m/s | True Az: 60.36° | Measured AoA: 60.73°
+
+--- TIME: 6.2s ---
+Target: Runner | True Pos: (1.104, 1.726) m | Measured Pos: (1.100, 1.732) m | True Range: 2.049 m | Measured Range: 2.052 m | True Vel: -0.872 m/s | Measured Vel: -0.869 m/s | True Az: 57.40° | Measured AoA: 57.60°
+
+--- TIME: 6.4s ---
+Target: Runner | True Pos: (1.109, 1.515) m | Measured Pos: (1.113, 1.511) m | True Range: 1.878 m | Measured Range: 1.877 m | True Vel: -0.839 m/s | Measured Vel: -0.841 m/s | True Az: 53.80° | Measured AoA: 53.62°
+
+--- TIME: 6.6s ---
+Target: Runner | True Pos: (1.116, 1.302) m | Measured Pos: (1.115, 1.305) m | True Range: 1.715 m | Measured Range: 1.717 m | True Vel: -0.791 m/s | Measured Vel: -0.788 m/s | True Az: 49.39° | Measured AoA: 49.50°
+
+--- TIME: 6.8s ---
+Target: Runner | True Pos: (1.125, 1.085) m | Measured Pos: (1.125, 1.089) m | True Range: 1.563 m | Measured Range: 1.565 m | True Vel: -0.721 m/s | Measured Vel: -0.719 m/s | True Az: 43.96° | Measured AoA: 44.08°
+
+--- TIME: 7.0s ---
+Target: Runner | True Pos: (1.136, 0.866) m | Measured Pos: (1.133, 0.867) m | True Range: 1.428 m | Measured Range: 1.427 m | True Vel: -0.621 m/s | Measured Vel: -0.624 m/s | True Az: 37.31° | Measured AoA: 37.40°
+
+--- TIME: 7.2s ---
+Target: Runner | True Pos: (1.149, 0.643) m | Measured Pos: (1.147, 0.644) m | True Range: 1.317 m | Measured Range: 1.315 m | True Vel: -0.485 m/s | Measured Vel: -0.483 m/s | True Az: 29.25° | Measured AoA: 29.30°
+
+--- TIME: 7.4s ---
+Target: Runner | True Pos: (1.164, 0.418) m | Measured Pos: (1.164, 0.418) m | True Range: 1.237 m | Measured Range: 1.237 m | True Vel: -0.308 m/s | Measured Vel: -0.312 m/s | True Az: 19.77° | Measured AoA: 19.77°
+
+--- TIME: 7.6s ---
+Target: Runner | True Pos: (1.181, 0.191) m | Measured Pos: (1.182, 0.188) m | True Range: 1.196 m | Measured Range: 1.197 m | True Vel: -0.094 m/s | Measured Vel: -0.091 m/s | True Az: 9.17° | Measured AoA: 9.02°
+
+--- TIME: 7.8s ---
+Target: Runner | True Pos: (1.200, -0.040) m | Measured Pos: (1.200, -0.039) m | True Range: 1.201 m | Measured Range: 1.200 m | True Vel: 0.139 m/s | Measured Vel: 0.136 m/s | True Az: -1.91° | Measured AoA: -1.88°
+
+--- TIME: 8.0s ---
+Target: Runner | True Pos: (1.221, -0.273) m | Measured Pos: (1.218, -0.275) m | True Range: 1.251 m | Measured Range: 1.249 m | True Vel: 0.364 m/s | Measured Vel: 0.367 m/s | True Az: -12.62° | Measured AoA: -12.74°
+
+--- TIME: 8.2s ---
+Target: Runner | True Pos: (1.244, -0.510) m | Measured Pos: (1.245, -0.511) m | True Range: 1.344 m | Measured Range: 1.346 m | True Vel: 0.561 m/s | Measured Vel: 0.566 m/s | True Az: -22.28° | Measured AoA: -22.32°
+
+--- TIME: 8.4s ---
+Target: Runner | True Pos: (1.269, -0.749) m | Measured Pos: (1.268, -0.745) m | True Range: 1.473 m | Measured Range: 1.471 m | True Vel: 0.723 m/s | Measured Vel: 0.721 m/s | True Az: -30.54° | Measured AoA: -30.45°
+
+--- TIME: 8.6s ---
+Target: Runner | True Pos: (1.296, -0.990) m | Measured Pos: (1.298, -0.990) m | True Range: 1.631 m | Measured Range: 1.632 m | True Vel: 0.850 m/s | Measured Vel: 0.848 m/s | True Az: -37.39° | Measured AoA: -37.33°
+
+--- TIME: 8.8s ---
+Target: Runner | True Pos: (1.325, -1.235) m | Measured Pos: (1.321, -1.236) m | True Range: 1.811 m | Measured Range: 1.809 m | True Vel: 0.948 m/s | Measured Vel: 0.952 m/s | True Az: -42.99° | Measured AoA: -43.10°
+
+--- TIME: 9.0s ---
+Target: Runner | True Pos: (1.356, -1.482) m | Measured Pos: (1.360, -1.482) m | True Range: 2.009 m | Measured Range: 2.011 m | True Vel: 1.026 m/s | Measured Vel: 1.030 m/s | True Az: -47.55° | Measured AoA: -47.47°
+
+--- TIME: 9.2s ---
+Target: Runner | True Pos: (1.389, -1.733) m | Measured Pos: (1.395, -1.725) m | True Range: 2.221 m | Measured Range: 2.218 m | True Vel: 1.088 m/s | Measured Vel: 1.092 m/s | True Az: -51.28° | Measured AoA: -51.03°
+
+--- TIME: 9.4s ---
+Target: Runner | True Pos: (1.424, -1.986) m | Measured Pos: (1.417, -1.988) m | True Range: 2.443 m | Measured Range: 2.441 m | True Vel: 1.139 m/s | Measured Vel: 1.138 m/s | True Az: -54.35° | Measured AoA: -54.51°
+
+--- TIME: 9.6s ---
+Target: Runner | True Pos: (1.461, -2.241) m | Measured Pos: (1.454, -2.243) m | True Range: 2.676 m | Measured Range: 2.673 m | True Vel: 1.181 m/s | Measured Vel: 1.178 m/s | True Az: -56.90° | Measured AoA: -57.05°
+
+--- TIME: 9.8s ---
+Target: Runner | True Pos: (1.500, -2.500) m | Measured Pos: (1.502, -2.501) m | True Range: 2.915 m | Measured Range: 2.918 m | True Vel: 1.218 m/s | Measured Vel: 1.222 m/s | True Az: -59.04° | Measured AoA: -59.02°
+
+--- TIME: 10.0s ---
+Target: Runner | True Pos: (1.541, -2.761) m | Measured Pos: (1.541, -2.759) m | True Range: 3.162 m | Measured Range: 3.160 m | True Vel: 1.250 m/s | Measured Vel: 1.246 m/s | True Az: -60.84° | Measured AoA: -60.81°
