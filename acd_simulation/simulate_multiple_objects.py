@@ -9,16 +9,20 @@ true_values = {'range': [], 'velocity': [], 'aoa': [], 'x': [], 'y': []}
 measured_values = {'range': [], 'velocity': [], 'aoa': [], 'x': [], 'y': []}
 
 class Target:
-    def __init__(self, name, pos, vel, acc, rcs=1.0):
+    def __init__(self, name, pos, vel, acc, rcs=1.0, color='g'):
         self.name = name
         self.pos = np.array(pos, dtype=float)
         self.vel = np.array(vel, dtype=float)
         self.acc = np.array(acc, dtype=float)
         self.rcs = rcs
+        self.color = color
+        self.history = {'x': [], 'y': []}
 
     def update_physics(self, dt):
         self.pos += self.vel * dt + 0.5 * self.acc * (dt**2)
         self.vel += self.acc * dt
+        self.history['x'].append(self.pos[0])
+        self.history['y'].append(self.pos[1])
 
 class RadarSensor:
     def __init__(self, snr_db=5):
@@ -127,12 +131,22 @@ def run_radar_simulation(iteration: int, snr_db: int, targets: list[Target], dur
     ax3.grid(True)
     ax3.set_xlim(-2, 15)
     ax3.set_ylim(-2, 15)
-    ax3.plot(0, 0, "r*", markersize=12, label="Radar")
-    det_plots, = ax3.plot([], [], "cx", markersize=10, markeredgewidth=2, linestyle='None', label="Measured")
-    truth_plots, = ax3.plot([], [], "go", markersize=8, alpha=0.3, linestyle='None', label="True")
-    title_text = ax3.set_title("Time: 0.0s")
-    ax3.legend(loc='upper right')
+    ax3.plot(0, 0, "k*", markersize=12, label="Radar")
+    
+    truth_markers = {}
+    meas_markers = {}
+    trail_lines = {}
+    aoa_lines = {}
 
+    for obj in targets:
+        # where the color of each target is set
+        trail_lines[obj.name], = ax3.plot([], [], color=obj.color, alpha=0.5, linewidth=1, linestyle='dashed')
+        truth_markers[obj.name], = ax3.plot([], [], marker="o", color=obj.color, markersize=8, alpha=0.3, linestyle='None', label=f"{obj.name} (True)")
+        meas_markers[obj.name], = ax3.plot([], [], marker="x", color=obj.color, markersize=8, markeredgewidth=2, linestyle='None', label=f"{obj.name} (Meas)")
+        aoa_lines[obj.name], = ax3.plot([], [], color=obj.color, alpha=1.0, linewidth=1)
+
+    title_text = ax3.set_title("Time: 0.0s")
+    ax3.legend(loc='upper right', fontsize='x-small', ncol=2)
     plt.tight_layout()
 
     # main simulation loop
@@ -159,8 +173,6 @@ def run_radar_simulation(iteration: int, snr_db: int, targets: list[Target], dur
             f.write(f"\n--- TIME: {t_now:.1f}s ---\n")
 
             processed_meas = []
-            meas_x, meas_y = [], []
-
             for r_idx, d_idx in detections:
                 # had an issue w out of bounds
                 r_prev = max(0, r_idx - 1)
@@ -187,16 +199,11 @@ def run_radar_simulation(iteration: int, snr_db: int, targets: list[Target], dur
                 m_aoa_rad = np.arcsin(np.clip((np.angle(s2/(s1+1e-12))*radar.wavelength)/(2*np.pi*radar.antennaSpacing), -1, 1))
                 mx, my = interp_r * np.cos(m_aoa_rad), interp_r * np.sin(m_aoa_rad)
                 
-                meas_x.append(mx) 
-                meas_y.append(my)
                 processed_meas.append({'r': interp_r, 'v': interp_v, 'aoa': np.rad2deg(m_aoa_rad), 'x': mx, 'y': my})
 
-            det_plots.set_data(meas_x, meas_y)
-            
-            truth_x, truth_y = [], []
             for obj in targets:
-                truth_x.append(obj.pos[0])
-                truth_y.append(obj.pos[1])
+                truth_markers[obj.name].set_data([obj.pos[0]], [obj.pos[1]])
+                trail_lines[obj.name].set_data(obj.history['x'], obj.history['y'])
                 
                 true_r = np.linalg.norm(obj.pos)
                 true_v = np.dot(obj.vel, obj.pos / (true_r + 1e-12))
@@ -206,6 +213,9 @@ def run_radar_simulation(iteration: int, snr_db: int, targets: list[Target], dur
                     best = min(processed_meas, key=lambda m: np.sqrt((m['x']-obj.pos[0])**2 + (m['y']-obj.pos[1])**2))
                     
                     if np.sqrt((best['x']-obj.pos[0])**2 + (best['y']-obj.pos[1])**2) < 2.0:
+                        meas_markers[obj.name].set_data([best['x']], [best['y']])
+                        aoa_lines[obj.name].set_data([0, best['x']], [0, best['y']])
+
                         log_entry = (f"Target: {obj.name} | "
                                      f"True Pos: ({obj.pos[0]:.3f}, {obj.pos[1]:.3f}) m | Measured Pos: ({best['x']:.3f}, {best['y']:.3f}) m | "
                                      f"True Range: {true_r:.3f} m | Measured Range: {best['r']:.3f} m | "
@@ -233,10 +243,14 @@ def run_radar_simulation(iteration: int, snr_db: int, targets: list[Target], dur
                         measured_values['aoa'].append(best['aoa'])
                         measured_values['x'].append(best['x'])
                         measured_values['y'].append(best['y'])
-            
-            truth_plots.set_data(truth_x, truth_y)
-            title_text.set_text(f"Time: {t_now:.1f}s | Detections: {len(detections)}")
+                    else:
+                        meas_markers[obj.name].set_data([], [])
+                        aoa_lines[obj.name].set_data([], [])
+                else:
+                    meas_markers[obj.name].set_data([], [])
+                    aoa_lines[obj.name].set_data([], [])
 
+            title_text.set_text(f"Time: {t_now:.1f}s | Detections: {len(detections)}")
             fig.canvas.draw_idle()
             fig.canvas.flush_events()
             plt.pause(0.01)
@@ -326,12 +340,12 @@ if __name__ == "__main__":
     # add targets here
     # name, pos, vel, acc, rcs
     targets = [
-        Target("Person 1", [2.0, 7.0], [-0.3, -0.6], [0.05, -0.07], rcs=1.0),
-        Target("Car 1", [10.0, 2.0], [-2.5, 0.0], [1.0, 0.0], rcs=5.0),
-        Target("Car 2", [5.0, 5.0], [0.1, 0.1], [0, -1.0], rcs=5.0) 
+        Target("Person 1", [15.0, 7.0], [-1.0, -1.0], [0.01, -0.01], rcs=1.0, color='green'),
+        Target("Car 1", [12.0, 2.0], [-3.0, 0.5], [0.5, 0.2], rcs=5.0, color='red'),
+        Target("Car 2", [5.0, 10.0], [0.5, -2.0], [0, 0.1], rcs=5.0, color='blue'),
     ]
     
-    run_radar_simulation(iteration="iteration_3", snr_db=snr_db, targets=targets, duration = 10.0, update_rate = 0.2)
+    run_radar_simulation(iteration="iteration_4", snr_db=snr_db, targets=targets, duration = 10.0, update_rate = 0.2)
     if len(measured_values['range']) > 0:
         plot_differences(
             true_values, 
