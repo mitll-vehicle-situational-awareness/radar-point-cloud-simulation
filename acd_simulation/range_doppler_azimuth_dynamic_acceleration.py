@@ -296,8 +296,10 @@ def run_radar_simulation():
 
         # Normalizing range profile plot so that the peak is at 0
         raw_range_profile = 20.0 * np.log10(np.abs(range_fft_rx1[:, 0]) + eps)
-        normalized_range_profile = raw_range_profile - np.max(raw_range_profile) # normalize so the peak is at 0 dB
-        line_range_profile.set_ydata(normalized_range_profile)
+        # normalized_range_profile = raw_range_profile - np.max(raw_range_profile) # normalize so the peak is at 0 dB
+        # line_range_profile.set_ydata(normalized_range_profile)
+        
+        line_range_profile.set_ydata(raw_range_profile)
         ax1.set_ylim(-100, 10)
 
         ax1.relim()
