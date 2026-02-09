@@ -456,7 +456,7 @@ def run_fmcw_radar_simulation():
         'true_azimuths': true_azimuths
     }
 
-def export_csv(csv_filename):
+def export_csv(results, csv_filename):
     # Export detected positions to CSV
     with open(csv_filename, 'w', newline='') as csvfile:
         fieldnames = ['time_s', 'detected_x_m', 'detected_y_m', 'true_x_m', 'true_y_m', 'position_error_m']
@@ -477,6 +477,5 @@ def export_csv(csv_filename):
 
 if __name__ == "__main__":
     results = run_fmcw_radar_simulation()
-    export_csv("detected_positions2.csv")
+    export_csv(results, "detected_positions2.csv")
     
-
