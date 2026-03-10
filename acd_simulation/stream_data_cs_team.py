@@ -72,7 +72,11 @@ class dataStream():
         return self.num_frames
 
     def getFrame(self):
-        curr_frame = self.data[self.frame_index, 0, :, 0 : 2, :]
+        # curr_frame = self.data[self.frame_index, 0, :, 0 : 2, :]
+        # self.frame_index += 1
+        # return curr_frame, self.frame_index
+        
+        curr_frame = self.data[self.frame_index]
         self.frame_index += 1
         return curr_frame, self.frame_index
 

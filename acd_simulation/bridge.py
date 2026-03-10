@@ -17,11 +17,10 @@ class RadarSensor:
         self.c = 299792458.0
         self.wavelength = self.c / self.f0
         
-        # [TX, ADC, RX, Loops]
         self.num_tx = sample.shape[0]
-        self.num_adc_samples = sample.shape[1]
+        self.num_chirp_loops = sample.shape[1]
         self.num_rx = sample.shape[2]
-        self.num_chirp_loops = sample.shape[3]
+        self.num_adc_samples = sample.shape[3]
         
         self.num_antennas = self.num_tx * self.num_rx
         self.num_chirps = self.num_chirp_loops * self.num_tx
@@ -32,8 +31,8 @@ class RadarSensor:
         self.antenna_spacing = self.wavelength / 2.0
 
         self.range_axis = (self.c * (np.arange(self.num_adc_samples) / self.num_adc_samples) * self.fs) / (2.0 * self.slope)
-        effective_pri = self.pri * self.num_tx
-        self.velocity_axis = np.fft.fftshift(np.fft.fftfreq(self.num_chirp_loops, d=effective_pri)) * (self.wavelength / 2.0)
+        fd = np.fft.fftshift(np.fft.fftfreq(self.num_chirp_loops, d=self.pri))
+        self.velocity_axis = fd * self.wavelength / 2
 
         self.num_angle_bins = 16
         spatial_freq = np.fft.fftshift(np.fft.fftfreq(self.num_angle_bins, d=1.0))
@@ -43,17 +42,22 @@ class RadarSensor:
     def process_radar_cube(self, raw_data):
         raw_data = raw_data - np.mean(raw_data, axis=2, keepdims=True)
         range_win = np.hamming(self.num_adc_samples).reshape(-1, 1, 1)
-        range_fft = np.fft.fft(raw_data * range_win, axis=0) 
         doppler_win = np.hamming(self.num_chirp_loops).reshape(1, 1, -1)
-        rd_fft = np.fft.fftshift(np.fft.fft(range_fft * doppler_win, axis=2), axes=2) 
-
-        bin_indices = np.arange(self.num_chirp_loops) - (self.num_chirp_loops // 2)
+        
+        range_fft = np.fft.fft(raw_data * range_win, axis=0)
+        bin_indices = np.arange(self.num_chirp_loops)
         omega = 2 * np.pi * bin_indices / self.num_chirp_loops
+
         for tx_idx in range(self.num_tx):
             start_ant = tx_idx * self.num_rx
             end_ant = (tx_idx + 1) * self.num_rx
             phase_corr = np.exp(-1j * omega * (tx_idx / self.num_tx))
-            rd_fft[:, start_ant:end_ant, :] *= phase_corr.reshape(1, 1, -1)
+            range_fft[:, start_ant:end_ant, :] *= phase_corr.reshape(1,1,-1)
+
+        rd_fft = np.fft.fftshift(
+            np.fft.fft(range_fft * doppler_win, axis=2),
+            axes=2
+        )
 
         rda_fft = np.fft.fftshift(np.fft.fft(rd_fft, n=self.num_angle_bins, axis=1), axes=1)
         return rda_fft
@@ -70,7 +74,7 @@ class RadarSensor:
         tr, td, gr, gd = 8, 4, 4, 2
         kernel = np.ones((2*tr+2*gr+1, 2*td+2*gd+1))
         kernel[tr:tr+2*gr+1, td:td+2*gd+1] = 0
-        kernel /= (kernel.size - (2*gr+1)*(2*gd+1))
+        kernel /= np.sum(kernel)
         
         noise_floor = convolve(range_doppler_power, kernel, mode='constant')
         threshold = noise_floor * (10**(threshold_db / 10.0))
@@ -117,9 +121,16 @@ def run_radar_simulation():
             start_time = time.time()
             
             frame_raw = ss.data[frame_idx]
-            temp = frame_raw.transpose(1, 3, 0, 2)
-            virtual_array = temp.reshape(radar.num_adc_samples, radar.num_chirp_loops, 12)
+            temp = frame_raw.transpose(3, 1, 0, 2)
+            virtual_array = temp.reshape(
+                radar.num_adc_samples,
+                radar.num_chirp_loops,
+                radar.num_tx * radar.num_rx
+            )
             raw_data = virtual_array.transpose(0, 2, 1)
+            
+            # print("frame_raw:", frame_raw.shape)
+            # print("raw_data:", raw_data.shape)
 
             radar_cube = radar.process_radar_cube(raw_data)
             detections = radar.detect_targets_2d(radar_cube)
@@ -136,7 +147,7 @@ def run_radar_simulation():
             # BEV Plotting
             ax_bev.cla()
             ax_bev.set_xlim(-10, 10)
-            ax_bev.set_ylim(0, 20)
+            ax_bev.set_ylim(-10, 10)
             ax_bev.grid(True)
             ax_bev.plot(0, 0, 'r^')
             ax_bev.set_title(f"Bird's Eye View - Detections: {len(detections)}")
@@ -159,7 +170,8 @@ def run_radar_simulation():
                 d_prev, d_next = (d_idx - 1) % radar.num_chirp_loops, (d_idx + 1) % radar.num_chirp_loops
                 v_l = np.sqrt(np.sum(np.abs(radar_cube[r_idx, :, d_prev])**2))
                 v_r = np.sqrt(np.sum(np.abs(radar_cube[r_idx, :, d_next])**2))
-                interp_v = (radar.velocity_axis[d_idx] + (radar.velocity_axis[1] - radar.velocity_axis[0]) * ((v_l - v_r) / (2 * (v_l + v_r - 2 * y0 + EPSILON)))).item()
+                v0 = np.sqrt(np.sum(np.abs(radar_cube[r_idx, :, d_idx])**2))
+                interp_v = (radar.velocity_axis[d_idx] + (radar.velocity_axis[1] - radar.velocity_axis[0]) * ((v_l - v_r) / (2 * (v_l + v_r - 2 * v0 + EPSILON)))).item()
 
                 angle_spectrum = np.abs(radar_cube[r_idx, :, d_idx])**2
                 ang_idx = np.argmax(angle_spectrum)
@@ -181,6 +193,8 @@ def run_radar_simulation():
                 f.write(f"  > R:{interp_r:6.3f}m | V:{interp_v:6.3f}m/s | A:{m_aoa_deg:6.2f}deg | X:{mx:6.3f} | Y:{my:6.3f}\n")
 
             plt.pause(0.01)
+        plt.ioff()
+        plt.show()
 
 if __name__ == "__main__":
     try:
