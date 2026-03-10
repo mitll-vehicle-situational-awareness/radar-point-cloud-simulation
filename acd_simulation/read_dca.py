@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def read_dca1000(filename,
                  reshape_raw = True,
@@ -23,6 +24,7 @@ def read_dca1000(filename,
 
     # Reshape data if it is in IIQQ format
     if reshape_raw:
+        print("In IIQQ format!")
         I2 = raw_data[1 : : 4]
         Q1 = raw_data[2 : : 4]
         iq_raw = np.copy(raw_data)
@@ -56,6 +58,13 @@ def read_dca1000(filename,
                            num_chirps_per_frame,
                            num_rx,
                            num_adc_samples)
+    
+    # data = iq_data.reshape(num_frames,
+    #                        num_chirps_per_frame,
+    #                        num_adc_samples,
+    #                        num_rx)
+
+    # data = np.transpose(data, (0, 1, 3, 2))
 
     # ---- Step 5: Group chirps by TX antenna ----
     # For TDM-MIMO, chirps repeat TX order: [TX0, TX1, TX2, TX0, TX1, TX2, ...]
@@ -73,5 +82,25 @@ def read_dca1000(filename,
     # ---- Step 6: Optionally flatten chirp loops if you just need per-TX stacks ----
     # e.g. data[0, 0] = all chirps from TX0 for frame 0
     # shape now: [frame, tx, chirp_loop, rx, sample]
+    
+    # ---- Test 1: See if the peak is all in one bin ----
+    # frame = 0
+    # tx = 0
+    # chirp = 0
+
+    # plt.figure()
+
+    # for rx in range(num_rx):
+    #     sig = data[frame, tx, chirp, rx, :]
+    #     rng_fft = np.abs(np.fft.fft(sig))
+    #     plt.plot(rng_fft, label=f"RX{rx}")
+
+    # plt.legend()
+    # plt.title("Range FFT per RX antenna (debug)")
+    # plt.xlabel("Range Bin")
+    # plt.ylabel("Amplitude")
+    # plt.show()
+    
+    #
 
     return data, num_frames
