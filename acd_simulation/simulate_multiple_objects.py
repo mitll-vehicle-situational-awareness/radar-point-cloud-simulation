@@ -250,6 +250,8 @@ def run_radar_simulation(iteration: int, snr_db: int, targets: list[Target], dur
                         (v_l - v_r) / (2 * (v_l + v_r - 2 * v0 + EPSILON))
                     )
 
+                    # more left on cam -> more left on radar
+                    # 2d elem diversity in elevationa and azimuth
                     # using beamforming to get AoA estimate from angle spectrum at detected (range, doppler)
                     angle_spectrum = np.abs(range_doppler_map[r_idx, :, d_idx])**2  # [angle bins]
                     ang_idx = np.argmax(angle_spectrum) # angular index
