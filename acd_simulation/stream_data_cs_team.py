@@ -14,7 +14,7 @@ import os
 # FILENAME = "../data/adc_data_new_6min.bin"
 # FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/adc_data_Raw_1121.bin"
 FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/combo/stream1R.bin"
-# FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/combo/stream2R.bin"
+# FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/acrylic_with_hole/stream1R.bin"
 # FILENAME = "../data/adc_data_Raw_1.bin" # uses THE_REAL_CONFIG
 
 RESHAPE_RAW = True;

@@ -204,8 +204,8 @@ def run_radar_simulation():
                 ]
             )
             
-            ax_rd.set_xlim(-8, 8)   # x-axis = velocity
-            ax_rd.set_ylim(0, 3)    # y-axis = range
+            # ax_rd.set_xlim(-8, 8)   # x-axis = velocity
+            # ax_rd.set_ylim(0, 3)    # y-axis = range
             ax_rd.set_title(f"Range-Doppler Frame: {frame_idx}")
             ax_rd.set_xlabel("Velocity (m/s)")
             ax_rd.set_ylabel("Range (m)")
@@ -263,27 +263,11 @@ def run_radar_simulation():
                 
                 if 0 < ang_idx < radar.num_angle_bins - 1:
                     # phase-based intrepolation
-                    p_l = np.log(a_l + EPSILON)
-                    p_0 = np.log(a0 + EPSILON)
-                    p_r = np.log(a_r + EPSILON)
-
-                    den = p_l - 2*p_0 + p_r
-
-                    if abs(den) < 1e-12:
-                        frac_offset = 0.0
-                    else:
-                        frac_offset = 0.5 * (p_l - p_r) / den
-
-                    frac_offset = np.clip(frac_offset, -0.5, 0.5)
-
-                    interp_r = radar.range_axis[r_idx] + frac_offset * (radar.range_axis[1] - radar.range_axis[0])
-                    
-                    # log-based intrepolation
                     # p_l = np.log(a_l + EPSILON)
                     # p_0 = np.log(a0 + EPSILON)
                     # p_r = np.log(a_r + EPSILON)
 
-                    # den = (p_l - 2*p_0 + p_r)
+                    # den = p_l - 2*p_0 + p_r
 
                     # if abs(den) < 1e-12:
                     #     frac_offset = 0.0
@@ -291,6 +275,22 @@ def run_radar_simulation():
                     #     frac_offset = 0.5 * (p_l - p_r) / den
 
                     # frac_offset = np.clip(frac_offset, -0.5, 0.5)
+
+                    # interp_r = radar.range_axis[r_idx] + frac_offset * (radar.range_axis[1] - radar.range_axis[0])
+                    
+                    # log-based intrepolation
+                    p_l = np.log(a_l + EPSILON)
+                    p_0 = np.log(a0 + EPSILON)
+                    p_r = np.log(a_r + EPSILON)
+
+                    den = (p_l - 2*p_0 + p_r)
+
+                    if abs(den) < 1e-12:
+                        frac_offset = 0.0
+                    else:
+                        frac_offset = 0.5 * (p_l - p_r) / den
+
+                    frac_offset = np.clip(frac_offset, -0.5, 0.5)
                     
                     # linear-based intrepolation
                     # frac_offset = (a_l - a_r) / (2 * (a_l + a_r - 2 * a0 + EPSILON))
@@ -306,8 +306,11 @@ def run_radar_simulation():
                 f.write(f"  > R:{interp_r:6.3f}m | V:{interp_v:6.3f}m/s | A:{m_aoa_deg:6.2f}deg | X:{mx:6.3f} | Y:{my:6.3f}\n")
 
             plt.tight_layout()
+            plt.pause(0.1)
             frame_path = os.path.join(frame_dir, f"frame_{frame_idx:04d}.png")
             fig.savefig(frame_path, dpi=150)
+        plt.ioff()
+        plt.show()
 
 if __name__ == "__main__":
     try:
