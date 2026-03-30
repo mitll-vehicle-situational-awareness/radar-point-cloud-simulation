@@ -19,13 +19,10 @@ class RadarSensor:
         self.num_rx = sample.shape[2]
         self.num_adc_samples = sample.shape[3]
 
-        # Note: adds more points for angle res (aka. more bins)
-        # self.num_antennas = self.num_tx * self.num_rx
-        # self.num_chirps = self.num_chirp_loops * self.num_tx
+        self.num_chirps = self.num_chirp_loops * self.num_tx * 2
         
         # Note: if we flatten tx
-        self.num_antennas = self.num_rx
-        self.num_chirps = self.num_chirp_loops
+        # self.num_chirps = self.num_chirp_loops 
 
         bw = 3.41e9
         slope = bw / (self.num_adc_samples / fs)
@@ -78,8 +75,8 @@ class RadarSensor:
         rd_cube_txrx = np.fft.fft(range_fft * doppler_win, axis=3)
         rd_cube_txrx = np.fft.fftshift(rd_cube_txrx, axes=3)
 
-        print("Raw Frame Shape: ", frame_raw.shape)
-        print("TDM-MIMO Cube Shape: ", rd_cube_txrx.shape)
+        # print("Raw Frame Shape: ", frame_raw.shape)
+        # print("TDM-MIMO Cube Shape: ", rd_cube_txrx.shape)
 
         return rd_cube_txrx
 

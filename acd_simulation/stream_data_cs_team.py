@@ -10,8 +10,8 @@ from bin_file_cutting_off import Fix_bin
 # FILENAME = "../../radar_camera_sdk/data/output.bin" # Uses OUTPUT_BIN_CONFIG
 # FILENAME = "../../radar_camera_sdk/data/adc_data_new_6min.bin"
 # FILENAME = "../../radar_camera_sdk/data/adc_data_Raw_1121.bin"
-# FILENAME = "../../radar_camera_sdk/data/combo/stream1R.bin"
-FILENAME = "../../radar_camera_sdk/data/aligned_frames_new/output/radar/radar3.bin"
+FILENAME = "../../radar_camera_sdk/data/combo/stream1R.bin"
+# FILENAME = "../../radar_camera_sdk/data/aligned_frames_new/output/radar/radar3.bin"
 # FILENAME = "../../radar_camera_sdk/data/acrylic_with_hole/stream1R.bin"
 
 CONFIG_FILENAME = "GoodCfg_Matlab.cfg"
