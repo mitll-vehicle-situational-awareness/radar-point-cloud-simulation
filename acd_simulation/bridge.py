@@ -1,4 +1,5 @@
 import os
+import csv
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,13 +18,20 @@ class RadarSensor:
         self.c = 299792458.0
         self.wavelength = self.c / self.f0
 
+        # samples, chirps, rx
+
         self.num_tx = sample.shape[0]
         self.num_chirp_loops = sample.shape[1]
         self.num_rx = sample.shape[2]
         self.num_adc_samples = sample.shape[3]
 
+        print(sample.shape)
+
         self.num_antennas = self.num_tx * self.num_rx
         self.num_chirps = self.num_chirp_loops * self.num_tx
+        
+        # self.num_antennas = self.num_rx
+        # self.num_chirps = self.num_chirp_loops
 
         # self.pri = 62e-6
         self.bw = 3.41e9
@@ -39,12 +47,13 @@ class RadarSensor:
         doppler_bins = np.arange(self.num_chirp_loops) - (self.num_chirp_loops // 2)
         self.velocity_axis = doppler_bins * self.velocity_resolution
 
-        self.num_angle_bins = self.num_rx * self.num_tx
+        # self.num_angle_bins = self.num_rx * self.num_tx
+        self.num_angle_bins = 32 # adding more points to perform the fft on => smoother fft peak
         self.spatial_freq_axis = np.fft.fftshift(
             np.fft.fftfreq(self.num_angle_bins, d=1.0)
         )
         sin_theta = np.clip(
-            self.spatial_freq_axis * (self.wavelength / self.antenna_spacing),
+            self.spatial_freq_axis * 2,
             -1.0,
             1.0
         )
@@ -54,41 +63,119 @@ class RadarSensor:
         print("num_chirps:", self.num_chirps)
         print("velocity axis:", self.velocity_axis[0], self.velocity_axis[-1])
 
-    def process_radar_cube(self, raw_data):
+    # def process_radar_cube(self, raw_data):
+    #     """
+    #     raw_data shape: [range_sample, virtual_ant, chirp_loop]
+    #     returns:
+    #         rd_fft   : [range_bin, virtual_ant, doppler_bin]
+    #         range_fft: [range_bin, virtual_ant, chirp_loop]
+    #     """
+
+    #     if raw_data.shape != (self.num_adc_samples, self.num_antennas, self.num_chirp_loops):
+    #         raise ValueError(
+    #             f"raw_data shape {raw_data.shape} does not match "
+    #             f"({self.num_adc_samples}, {self.num_antennas}, {self.num_chirp_loops})"
+    #         )
+
+    #     # Note: uncomment if we want to remove static refectors
+    #     # if remove_static:
+    #     #     raw_data = raw_data - np.mean(raw_data, axis=2, keepdims=True)
+    #     # raw_data -= np.mean(raw_data, axis=0, keepdims=True)
+
+    #     range_win = np.hamming(self.num_adc_samples).reshape(-1, 1, 1)
+    #     doppler_win = np.hamming(self.num_chirp_loops).reshape(1, 1, -1)
+
+    #     # Range FFT
+    #     range_fft = np.fft.fft(raw_data * range_win, axis=0)
+
+    #     # Doppler FFT
+    #     rd_fft = np.fft.fft(range_fft * doppler_win, axis=2)
+    #     rd_fft = np.fft.fftshift(rd_fft, axes=2)
+
+    #     # Angle FFT
+    #     # rda_fft = np.fft.fft(rd_fft, n=self.num_angle_bins, axis=1)
+    #     # rda_fft = np.fft.fftshift(rda_fft, axes=1)
+
+    #     # return rda_fft
+    #     return rd_fft
+    
+    def process_tdm_mimo_cube(self, frame_raw):
         """
-        raw_data shape: [range_sample, virtual_ant, chirp_loop]
-        returns:
-            rd_fft   : [range_bin, virtual_ant, doppler_bin]
-            range_fft: [range_bin, virtual_ant, chirp_loop]
+        frame_raw shape: [tx, chirp_loop, rx, adc_sample]
+
+        Returns:
+            rd_cube_txrx: [range_bin, tx, rx, doppler_bin]
         """
 
-        if raw_data.shape != (self.num_adc_samples, self.num_antennas, self.num_chirp_loops):
+        if frame_raw.shape != (self.num_tx, self.num_chirp_loops, self.num_rx, self.num_adc_samples):
             raise ValueError(
-                f"raw_data shape {raw_data.shape} does not match "
-                f"({self.num_adc_samples}, {self.num_antennas}, {self.num_chirp_loops})"
+                f"frame_raw shape {frame_raw.shape} does not match "
+                f"({self.num_tx}, {self.num_chirp_loops}, {self.num_rx}, {self.num_adc_samples})"
             )
 
-        # Note: uncomment if we want to remove static refectors
-        # if remove_static:
-        #     raw_data = raw_data - np.mean(raw_data, axis=2, keepdims=True)
-        # raw_data -= np.mean(raw_data, axis=0, keepdims=True)
+        # Reorder to [adc, tx, rx, chirp_loop]
+        data = np.transpose(frame_raw, (3, 0, 2, 1))
 
-        range_win = np.hamming(self.num_adc_samples).reshape(-1, 1, 1)
-        doppler_win = np.hamming(self.num_chirp_loops).reshape(1, 1, -1)
+        range_win = np.hamming(self.num_adc_samples).reshape(-1, 1, 1, 1)
+        doppler_win = np.hamming(self.num_chirp_loops).reshape(1, 1, 1, -1)
 
-        # Range FFT
-        range_fft = np.fft.fft(raw_data * range_win, axis=0)
+        # Range FFT over adc axis
+        range_fft = np.fft.fft(data * range_win, axis=0)
 
-        # Doppler FFT
-        rd_fft = np.fft.fft(range_fft * doppler_win, axis=2)
-        rd_fft = np.fft.fftshift(rd_fft, axes=2)
+        # Doppler FFT over chirp-loop axis, separately for each TX/RX channel
+        rd_cube_txrx = np.fft.fft(range_fft * doppler_win, axis=3)
+        rd_cube_txrx = np.fft.fftshift(rd_cube_txrx, axes=3)
 
-        # Angle FFT
-        # rda_fft = np.fft.fft(rd_fft, n=self.num_angle_bins, axis=1)
-        # rda_fft = np.fft.fftshift(rda_fft, axes=1)
+        return rd_cube_txrx
 
-        # return rda_fft
-        return rd_fft
+
+    def integrate_rd_power(self, rd_cube_txrx):
+        """
+        rd_cube_txrx: [range_bin, tx, rx, doppler_bin]
+        returns integrated power map: [range_bin, doppler_bin]
+        """
+        return np.sum(np.abs(rd_cube_txrx) ** 2, axis=(1, 2))
+
+
+    def build_virtual_ant_vector(self, rd_cube_txrx, r_idx, d_idx, phase_sign=-1):
+        """
+        Build compensated virtual antenna vector for one RD detection.
+
+        rd_cube_txrx shape: [range_bin, tx, rx, doppler_bin]
+        output ant_vec shape: [num_tx * num_rx]
+        """
+
+        # Extract [tx, rx] slice at one RD cell
+        txrx_slice = rd_cube_txrx[r_idx, :, :, d_idx].copy()
+
+        # Convert shifted Doppler index to signed Doppler bin
+        doppler_bin_signed = d_idx - (self.num_chirp_loops // 2)
+
+        # Doppler phase advance per chirp
+        omega = 2.0 * np.pi * doppler_bin_signed / self.num_chirp_loops
+
+        # TDM-MIMO compensation:
+        # TX0 delay = 0 chirps
+        # TX1 delay = 1 chirp
+        # TX2 delay = 2 chirps
+        for tx_idx in range(self.num_tx):
+            phase_corr = np.exp(phase_sign * 1j * omega * tx_idx)
+            txrx_slice[tx_idx, :] *= phase_corr
+
+        # Flatten as [TX0RX0...RXn, TX1RX0...RXn, ...]
+        ant_vec = txrx_slice.reshape(self.num_tx * self.num_rx)
+
+        return ant_vec
+
+
+    def get_angle_spectrum(self, rd_cube_txrx, r_idx, d_idx, phase_sign=-1):
+        """
+        Build angle spectrum from one RD detection using clean TDM-MIMO logic.
+        """
+        ant_vec = self.build_virtual_ant_vector(rd_cube_txrx, r_idx, d_idx, phase_sign=phase_sign)
+        angle_fft = np.fft.fftshift(np.fft.fft(ant_vec, n=self.num_angle_bins))
+        angle_spectrum = np.abs(angle_fft) ** 2
+        return angle_spectrum
 
     def detect_targets_2d(
         self,
@@ -101,19 +188,17 @@ class RadarSensor:
         doppler_threshold_db=10.0,
     ):
         """
-        Two-stage CFAR detector:
-        1) CASO-CFAR along range axis
-        2) CA-CFAR along Doppler axis
+        Two-stage CFAR detector
 
         Input:
-            radar_cube: [range_bin, virtual_ant, doppler_bin]
+            radar_cube: [range_bin, tx, rx, doppler_bin]
 
         Output:
             detections: list of (range_idx, doppler_idx)
         """
 
-        # Sum across antennas to get integrated RD power
-        range_doppler_power = np.sum(np.abs(radar_cube) ** 2, axis=1)
+        # Sum across TX and RX to get integrated RD power
+        range_doppler_power = np.sum(np.abs(radar_cube) ** 2, axis=(1, 2))
 
         # --- DC GUARD ZONE ---
         # Zero out the first 3-5 bins (adjust based on your range resolution)
@@ -121,6 +206,7 @@ class RadarSensor:
         range_doppler_power[:4, :] = 0
 
         num_range_bins, num_doppler_bins = range_doppler_power.shape
+        print("NUM OF BINS: ", range_doppler_power.shape)
 
         # Boolean maps for each CFAR stage
         range_pass = np.zeros_like(range_doppler_power, dtype=bool)
@@ -206,33 +292,35 @@ class RadarSensor:
 
         return detections
 
-    def get_angle_spectrum(self, rd_cube, r_idx, d_idx, phase_sign=-1):
-        """
-        Build angle spectrum for one detected RD cell.
+    # def get_angle_spectrum(self, rd_cube, r_idx, d_idx, phase_sign=-1):
+    #     """
+    #     Build angle spectrum for one detected RD cell.
 
-        Steps:
-        1. Extract virtual antenna vector at (r_idx, d_idx)
-        2. Apply per-detection TDM-MIMO Doppler compensation
-        3. Run angle FFT
-        """
+    #     Steps:
+    #     1. Extract virtual antenna vector at (r_idx, d_idx)
+    #     2. Apply per-detection TDM-MIMO Doppler compensation
+    #     3. Run angle FFT
+    #     """
 
-        ant_vec = rd_cube[r_idx, :, d_idx].copy()
+    #     ant_vec = rd_cube[r_idx, :, d_idx].copy()
+    #     print("D_IDX: ", d_idx)
+    #     # print("R_IDX:")
 
-        # Signed Doppler bin after fftshift
-        doppler_bin_signed = d_idx - (self.num_chirp_loops // 2)
-        omega = 2.0 * np.pi * doppler_bin_signed / self.num_chirp_loops
+    #     # Signed Doppler bin after fftshift
+    #     # doppler_bin_signed = d_idx - (self.num_chirp_loops // 2)
+    #     # omega = 2.0 * np.pi * doppler_bin_signed / self.num_chirp_loops
 
-        # TDM-MIMO Doppler phase compensation
-        for tx_idx in range(self.num_tx):
-            start_ant = tx_idx * self.num_rx
-            end_ant = (tx_idx + 1) * self.num_rx
-            phase_corr = np.exp(phase_sign * 1j * omega * (tx_idx / self.num_tx))
-            ant_vec[start_ant:end_ant] *= phase_corr
+    #     # # TDM-MIMO Doppler phase compensation
+    #     # for tx_idx in range(self.num_tx):
+    #     #     start_ant = tx_idx * self.num_rx
+    #     #     end_ant = (tx_idx + 1) * self.num_rx
+    #     #     phase_corr = np.exp(phase_sign * 1j * omega * tx_idx))
+    #     #     ant_vec[start_ant:end_ant] *= phase_corr
 
-        angle_fft = np.fft.fftshift(np.fft.fft(ant_vec, n=self.num_angle_bins))
-        angle_spectrum = np.abs(angle_fft)**2
+    #     angle_fft = np.fft.fftshift(np.fft.fft(ant_vec, n=self.num_angle_bins))
+    #     angle_spectrum = np.abs(angle_fft)**2
 
-        return angle_spectrum
+    #     return angle_spectrum
 
 
 def run_radar_simulation():
@@ -261,7 +349,7 @@ def run_radar_simulation():
         for frame_idx in range(ss.num_frames):
             start_time = time.time()
 
-            frame_raw = ss.data[frame_idx]
+            raw_frame = ss.data[frame_idx]
 
             # test ---
             # range_win = np.hamming(radar.num_adc_samples)
@@ -280,20 +368,21 @@ def run_radar_simulation():
             #     print(f"  bin {b:3d} -> {radar.range_axis[b]:.3f} m, power={simple_range_power[b]:.3e}")
 
             # ----
-            temp = frame_raw.transpose(3, 1, 0, 2)
-            virtual_array = temp.reshape(
-                radar.num_adc_samples,
-                radar.num_chirp_loops,
-                radar.num_tx * radar.num_rx
-            )
-            raw_data = virtual_array.transpose(0, 2, 1)
+            # temp = frame_raw.transpose(3, 1, 0, 2)
+            # virtual_array = temp.reshape(
+            #     radar.num_adc_samples,
+            #     radar.num_chirp_loops,
+            #     radar.num_tx * radar.num_rx
+            # )
+            # raw_data = virtual_array.transpose(0, 2, 1)
 
             # print("frame_raw:", frame_raw.shape)
             # print("raw_data:", raw_data.shape)
 
             # virtual antenna order:
             # [TX0-RX0, TX0-RX1, ..., TX1-RX0, ..., TX2-RX3]
-            rd_cube = radar.process_radar_cube(raw_data)
+            # rd_cube = radar.process_radar_cube(raw_data)
+            rd_cube = radar.process_tdm_mimo_cube(raw_frame)
 
             # top_bins = np.argsort(range_profile)[-10:][::-1]
             # print("Top 10 range bins:")
@@ -303,7 +392,8 @@ def run_radar_simulation():
             detections = radar.detect_targets_2d(rd_cube)
 
             # RD Plotting - Update data instead of clearing
-            rd_amp = np.sqrt(np.sum(np.abs(rd_cube)**2, axis=1))
+            # rd_cube => [range, tx, rx, doppler]
+            rd_amp = np.sqrt(np.sum(np.abs(rd_cube)**2, axis=(1, 2)))
             rd_db = 20.0 * np.log10(rd_amp + EPSILON)
 
             ax_rd.cla()
@@ -360,9 +450,9 @@ def run_radar_simulation():
                 # Range interpolation
                 if 0 < r_idx < radar.num_adc_samples - 1:
                     r_prev, r_next = r_idx - 1, r_idx + 1
-                    y0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, d_idx])**2))
-                    y_l = np.sqrt(np.sum(np.abs(rd_cube[r_prev, :, d_idx])**2))
-                    y_r = np.sqrt(np.sum(np.abs(rd_cube[r_next, :, d_idx])**2))
+                    y0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
+                    y_l = np.sqrt(np.sum(np.abs(rd_cube[r_prev, :, :, d_idx])**2))
+                    y_r = np.sqrt(np.sum(np.abs(rd_cube[r_next, :, :, d_idx])**2))
 
                     # FIXED: Ensure interpolation results are scalars using .item()
                     interp_r = (
@@ -375,9 +465,9 @@ def run_radar_simulation():
 
                 # Doppler interpolation
                 d_prev, d_next = (d_idx - 1) % radar.num_chirp_loops, (d_idx + 1) % radar.num_chirp_loops
-                v_l = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, d_prev])**2))
-                v_r = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, d_next])**2))
-                v0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, d_idx])**2))
+                v_l = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_prev])**2))
+                v_r = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_next])**2))
+                v0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
                 interp_v = (
                     radar.velocity_axis[d_idx]
                     + (radar.velocity_axis[1] - radar.velocity_axis[0])
@@ -464,11 +554,10 @@ def run_radar_simulation():
 
             plt.tight_layout()
             plt.draw()
-            plt.pause(0.001)
+            plt.pause(0.1)
 
     plt.ioff()
     plt.show()
-
 
 if __name__ == "__main__":
     run_radar_simulation()
