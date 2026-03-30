@@ -1,70 +1,43 @@
-import string
-
-from read_dca import read_dca1000
-# import scipy.fft as fft
+import numpy as np
 import numpy.fft as fft
 import matplotlib.pyplot as plt
-import numpy as np
-import os
+from read_dca import read_dca1000
+from bin_file_cutting_off import Fix_bin
 
-# FILENAME = "../data/adc_data_Raw_0(1).bin"
-# FILENAME = "../data/iqData_Raw_0.bin"
-# FILENAME = "../data/adc_data_Raw_0.bin"
-# FILENAME = "../data/output.bin" # Uses OUTPUT_BIN_CONFIG
-# FILENAME = "../data/adc_data_new_6min.bin"
-# FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/adc_data_Raw_1121.bin"
-FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/combo/stream1R.bin"
-# FILENAME = "C:/Users/potat/Downloads/Senior Capstone/radar_camera_sdk/data/acrylic_with_hole/stream1R.bin"
-# FILENAME = "../data/adc_data_Raw_1.bin" # uses THE_REAL_CONFIG
+# FILENAME = "../../radar_camera_sdk/data/adc_data_Raw_0(1).bin"
+# FILENAME = "../../radar_camera_sdk/data/iqData_Raw_0.bin"
+# FILENAME = "../../radar_camera_sdk/data/adc_data_Raw_0.bin"
+# FILENAME = "../../radar_camera_sdk/data/output.bin" # Uses OUTPUT_BIN_CONFIG
+# FILENAME = "../../radar_camera_sdk/data/adc_data_new_6min.bin"
+# FILENAME = "../../radar_camera_sdk/data/adc_data_Raw_1121.bin"
+# FILENAME = "../../radar_camera_sdk/data/combo/stream1R.bin"
+FILENAME = "../../radar_camera_sdk/data/aligned_frames_new/output/radar/radar3.bin"
+# FILENAME = "../../radar_camera_sdk/data/acrylic_with_hole/stream1R.bin"
 
-RESHAPE_RAW = True;
+CONFIG_FILENAME = "GoodCfg_Matlab.cfg"
 
-
-CONFIG_TYPE = "THE_REAL_CONFIG"
-# CONFIG_TYPE = "NEW_CONFIG"
-# CONFIG_TYPE = "OUTPUT_BIN_CONFIG"
-
-
-if (CONFIG_TYPE == "THE_REAL_CONFIG"):
-    NUM_ADC_SAMPLES = 256
-    NUM_RX = 4
-    NUM_TX = 3
-    NUM_CHIRPS_PER_FRAME = 96
-    NUM_CHIRP_LOOPS = NUM_CHIRPS_PER_FRAME // NUM_TX
-    # NUM_FRAMES = 10
-    RANGE_RESOLUTION = 0.044 # m per bin
-    VELOCITY_RESOLUTION = 1.26 # m/s per bin
-    FRAME_TIME_LENGTH = 100 # ms
-elif (CONFIG_TYPE == "NEW_CONFIG"):
-    NUM_ADC_SAMPLES = 249
-    NUM_RX = 4
-    NUM_TX = 3
-    NUM_CHIRPS_PER_FRAME = 81
-    NUM_CHIRP_LOOPS = NUM_CHIRPS_PER_FRAME // NUM_TX
-    # NUM_FRAMES = 10
-    RANGE_RESOLUTION = 0.044 # m per bin
-    VELOCITY_RESOLUTION = 0.13 # m/s per bin
-    FRAME_TIME_LENGTH = 100 # ms
-elif (CONFIG_TYPE == "OUTPUT_BIN_CONFIG"):
-    NUM_ADC_SAMPLES = 256
-    NUM_RX = 4
-    NUM_TX = 3
-    NUM_CHIRPS_PER_FRAME = 48
-    NUM_CHIRP_LOOPS = NUM_CHIRPS_PER_FRAME // NUM_TX
-    # NUM_FRAMES = 10
-    RANGE_RESOLUTION = 0.044 # m per bin
-    VELOCITY_RESOLUTION = 1.26 # m/s per bin
-    FRAME_TIME_LENGTH = 100 # ms -- THIS DATA IS PROBABLY WRONG FOR THIS CONFIG
 
 class dataStream():
-    def __init__(self, filename=FILENAME):
-        self.filename = filename # Instance variable
-        self.data, self.num_frames = read_dca1000(self.filename,
-                                                    reshape_raw=RESHAPE_RAW,
-                                                    num_adc_samples=NUM_ADC_SAMPLES,
-                                                    num_chirps_per_frame=NUM_CHIRPS_PER_FRAME,
-                                                    num_rx=NUM_RX,
-                                                    num_tx=NUM_TX)
+    def __init__(self, config= CONFIG_FILENAME, filename=FILENAME):
+        
+        fix_bin_file = Fix_bin(1)
+        fix_bin_file.read_config(config)
+
+        trans=fix_bin_file.get_no_transmitters()
+        receiv=fix_bin_file.get_no_recievers()
+        loops=fix_bin_file.get_loops()
+        num_adc=fix_bin_file.get_samples()
+        chirps=fix_bin_file.get_number_chirps()
+
+        num_chirps_frame=loops*chirps
+
+        self.data, self.num_frames = read_dca1000(filename,
+                            reshape_raw=True,
+                            num_adc_samples=num_adc,
+                            num_chirps_per_frame=num_chirps_frame,
+                            num_rx=receiv,
+                            num_tx=trans)
+        
         self.data = np.flip(self.data, axis=4)
         self.frame_index = 0
 
@@ -91,8 +64,6 @@ def main():
     with open("stream_data_ouput.txt", "w", encoding="utf-8") as file:
         for _ in range(num_frames):
             curr_frame, idx = stream_object.getFrame()
-            # print(i)
-            # print(curr_frame)
             file.write(f"\n\nINDEX: {str(idx)}\n")
             file.write(str(curr_frame))
             

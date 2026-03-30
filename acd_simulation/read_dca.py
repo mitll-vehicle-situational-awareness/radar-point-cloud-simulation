@@ -33,9 +33,6 @@ def read_dca1000(filename,
     else:
         iq_raw = raw_data
 
-        
-
-
     num_bytes = iq_raw.size * 2
     print(num_bytes)
 
@@ -49,6 +46,8 @@ def read_dca1000(filename,
     # if iq_data.size != total_expected:
     #     print(f"[Warning] Data size mismatch:")
     #     print(f"  Expected {total_expected} complex samples, got {iq_data.size}")
+    print("IQ data size: ", iq_data.size)
+    
     num_frames = iq_data.size // (num_chirps_per_frame * samples_per_chirp)
         # print(f"  Adjusted num_frames = {num_frames}")
     iq_data = iq_data[ : num_frames * num_chirps_per_frame * num_rx * num_adc_samples]

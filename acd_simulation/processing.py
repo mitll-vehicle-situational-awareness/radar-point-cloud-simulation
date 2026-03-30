@@ -42,9 +42,7 @@ class RadarSensor:
         doppler_bins = np.arange(self.num_chirp_loops) - (self.num_chirp_loops // 2)
         self.velocity_axis = doppler_bins * velocity_res
 
-        # self.num_angle_bins = self.num_rx * self.num_tx
-        # adding more points to perform the fft on => smoother fft peak
-        self.num_angle_bins = 32
+        self.num_angle_bins = self.num_rx * self.num_tx
         self.spatial_freq_axis = np.fft.fftshift(
             np.fft.fftfreq(self.num_angle_bins, d=1.0)
         ) # d = timestep
@@ -255,7 +253,7 @@ class RadarSensor:
 def run_radar_simulation():
     ss = stream_data_cs_team.dataStream()
     radar = RadarSensor(ss.data[0])
-
+    
     print("ss.num_frames:", ss.num_frames)
 
     log_dir = "logs"
@@ -374,12 +372,12 @@ def run_radar_simulation():
                     p_0 = np.log(a0 + EPSILON)
                     p_r = np.log(a_r + EPSILON)
 
-                    den = (p_l - 2 * p_0 + p_r)
+                    denom = (p_l - 2 * p_0 + p_r)
 
-                    if abs(den) < 1e-12:
+                    if abs(denom) < 1e-12:
                         frac_offset = 0.0
                     else:
-                        frac_offset = 0.5 * (p_l - p_r) / den
+                        frac_offset = 0.5 * (p_l - p_r) / denom
 
                     frac_offset = np.clip(frac_offset, -0.5, 0.5)
 
