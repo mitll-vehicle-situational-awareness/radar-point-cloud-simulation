@@ -1,0 +1,120 @@
+
+FRAME 0 | Timestamp: 1774890849.7907 | Latency: 72.60 ms | Beam: -33.75 deg
+  DETECT | R: 0.627 m | V: 0.267 m/s | AoA:-65.91 deg | X:-0.573 | Y: 0.256
+  DETECT | R: 1.252 m | V: 0.264 m/s | AoA:-67.95 deg | X:-1.160 | Y: 0.470
+  DETECT | R: 4.084 m | V:-0.027 m/s | AoA:-59.35 deg | X:-3.513 | Y: 2.082
+  DETECT | R: 8.811 m | V: 1.242 m/s | AoA:-62.80 deg | X:-7.837 | Y: 4.027
+
+FRAME 1 | Timestamp: 1774890850.1694 | Latency: 59.64 ms | Beam: -33.75 deg
+  DETECT | R: 0.644 m | V: 0.336 m/s | AoA: 63.25 deg | X: 0.575 | Y: 0.290
+  DETECT | R: 8.825 m | V: 0.717 m/s | AoA: 64.79 deg | X: 7.985 | Y: 3.759
+
+FRAME 2 | Timestamp: 1774890850.3355 | Latency: 58.40 ms | Beam: -33.75 deg
+  DETECT | R: 0.648 m | V: 0.074 m/s | AoA: 75.64 deg | X: 0.628 | Y: 0.161
+  DETECT | R: 4.040 m | V: 0.007 m/s | AoA:-71.04 deg | X:-3.821 | Y: 1.313
+  DETECT | R: 4.941 m | V:-0.037 m/s | AoA: 56.00 deg | X: 4.096 | Y: 2.763
+  DETECT | R: 8.822 m | V: 0.129 m/s | AoA:-63.89 deg | X:-7.922 | Y: 3.882
+
+FRAME 3 | Timestamp: 1774890850.4866 | Latency: 47.73 ms | Beam: -33.75 deg
+  DETECT | R: 8.813 m | V:-0.430 m/s | AoA:-48.18 deg | X:-6.567 | Y: 5.877
+
+FRAME 4 | Timestamp: 1774890850.6622 | Latency: 57.29 ms | Beam: -33.75 deg
+  DETECT | R: 0.621 m | V:-2.897 m/s | AoA:-52.70 deg | X:-0.494 | Y: 0.376
+  DETECT | R: 0.697 m | V:-5.042 m/s | AoA:-55.26 deg | X:-0.573 | Y: 0.397
+  DETECT | R: 1.252 m | V:-7.366 m/s | AoA:-57.35 deg | X:-1.054 | Y: 0.675
+  DETECT | R: 3.466 m | V: 0.010 m/s | AoA: 32.48 deg | X: 1.861 | Y: 2.924
+  DETECT | R: 5.005 m | V:-0.127 m/s | AoA: 36.95 deg | X: 3.009 | Y: 4.000
+  DETECT | R: 8.796 m | V:-8.340 m/s | AoA:-57.12 deg | X:-7.387 | Y: 4.775
+  DETECT | R: 8.893 m | V:-8.354 m/s | AoA:-61.29 deg | X:-7.800 | Y: 4.272
+
+FRAME 5 | Timestamp: 1774890850.8291 | Latency: 66.87 ms | Beam: -33.75 deg
+  DETECT | R: 0.658 m | V:-7.154 m/s | AoA:-57.64 deg | X:-0.556 | Y: 0.352
+  DETECT | R: 0.748 m | V:-7.279 m/s | AoA:-56.58 deg | X:-0.625 | Y: 0.412
+  DETECT | R: 3.466 m | V:-0.081 m/s | AoA: 30.82 deg | X: 1.776 | Y: 2.977
+  DETECT | R: 5.000 m | V:-0.063 m/s | AoA: 36.97 deg | X: 3.007 | Y: 3.994
+
+FRAME 6 | Timestamp: 1774890850.9950 | Latency: 56.79 ms | Beam: -33.75 deg
+  DETECT | R: 0.749 m | V:-10.494 m/s | AoA:-69.87 deg | X:-0.704 | Y: 0.258
+  DETECT | R: 3.469 m | V:-0.019 m/s | AoA: 28.95 deg | X: 1.679 | Y: 3.036
+  DETECT | R: 4.943 m | V: 0.099 m/s | AoA: 48.01 deg | X: 3.674 | Y: 3.307
+
+FRAME 7 | Timestamp: 1774890851.1623 | Latency: 56.85 ms | Beam: -33.75 deg
+  DETECT | R: 3.472 m | V:-0.038 m/s | AoA: 26.97 deg | X: 1.575 | Y: 3.094
+  DETECT | R: 4.943 m | V:-0.076 m/s | AoA: 45.84 deg | X: 3.546 | Y: 3.444
+  DETECT | R: 8.033 m | V: 6.307 m/s | AoA: 59.83 deg | X: 6.945 | Y: 4.037
+  DETECT | R: 8.818 m | V: 5.265 m/s | AoA: 55.81 deg | X: 7.294 | Y: 4.955
+
+FRAME 8 | Timestamp: 1774890851.3123 | Latency: 50.05 ms | Beam: -33.75 deg
+  DETECT | R: 0.858 m | V:-3.334 m/s | AoA: 42.14 deg | X: 0.576 | Y: 0.636
+  DETECT | R: 2.390 m | V: 7.750 m/s | AoA: 75.64 deg | X: 2.316 | Y: 0.593
+  DETECT | R: 3.474 m | V: 0.052 m/s | AoA: 28.89 deg | X: 1.678 | Y: 3.042
+
+FRAME 9 | Timestamp: 1774890851.4781 | Latency: 56.18 ms | Beam: -33.75 deg
+  DETECT | R: 0.911 m | V:-2.233 m/s | AoA: 37.08 deg | X: 0.549 | Y: 0.727
+  DETECT | R: 1.062 m | V:-0.119 m/s | AoA:-73.82 deg | X:-1.020 | Y: 0.296
+  DETECT | R: 3.474 m | V: 0.015 m/s | AoA: 26.92 deg | X: 1.573 | Y: 3.098
+
+FRAME 10 | Timestamp: 1774890851.6311 | Latency: 55.55 ms | Beam: -33.75 deg
+  DETECT | R: 0.911 m | V:-2.456 m/s | AoA: 37.20 deg | X: 0.551 | Y: 0.726
+  DETECT | R: 1.053 m | V:-0.043 m/s | AoA:-58.93 deg | X:-0.902 | Y: 0.543
+  DETECT | R: 1.582 m | V:10.116 m/s | AoA: 60.99 deg | X: 1.383 | Y: 0.767
+  DETECT | R: 3.475 m | V:-0.006 m/s | AoA: 27.48 deg | X: 1.604 | Y: 3.083
+
+FRAME 11 | Timestamp: 1774890851.7840 | Latency: 52.11 ms | Beam: -33.75 deg
+  DETECT | R: 3.475 m | V:-0.006 m/s | AoA: 27.06 deg | X: 1.581 | Y: 3.095
+  DETECT | R: 5.465 m | V:-9.746 m/s | AoA:-50.93 deg | X:-4.243 | Y: 3.444
+
+FRAME 12 | Timestamp: 1774890851.9406 | Latency: 53.29 ms | Beam: -33.75 deg
+  DETECT | R: 0.963 m | V: 0.700 m/s | AoA: 37.00 deg | X: 0.579 | Y: 0.769
+  DETECT | R: 1.038 m | V: 0.031 m/s | AoA:-69.25 deg | X:-0.971 | Y: 0.368
+  DETECT | R: 3.475 m | V:-0.015 m/s | AoA: 27.22 deg | X: 1.589 | Y: 3.090
+
+FRAME 13 | Timestamp: 1774890852.1307 | Latency: 55.51 ms | Beam: -33.75 deg
+  DETECT | R: 1.065 m | V:-0.054 m/s | AoA:-55.64 deg | X:-0.879 | Y: 0.601
+  DETECT | R: 3.474 m | V:-0.007 m/s | AoA: 26.68 deg | X: 1.560 | Y: 3.104
+
+FRAME 14 | Timestamp: 1774890852.2885 | Latency: 56.08 ms | Beam: -33.75 deg
+  DETECT | R: 0.756 m | V: 2.143 m/s | AoA:-18.42 deg | X:-0.239 | Y: 0.717
+  DETECT | R: 1.059 m | V:-0.062 m/s | AoA:-53.52 deg | X:-0.852 | Y: 0.630
+  DETECT | R: 3.474 m | V:-0.026 m/s | AoA: 27.15 deg | X: 1.585 | Y: 3.091
+
+FRAME 15 | Timestamp: 1774890852.4401 | Latency: 54.12 ms | Beam: -33.75 deg
+  DETECT | R: 3.475 m | V:-0.033 m/s | AoA: 26.87 deg | X: 1.570 | Y: 3.099
+
+FRAME 16 | Timestamp: 1774890852.5809 | Latency: 43.65 ms | Beam: -33.75 deg
+  DETECT | R: 1.061 m | V:-0.094 m/s | AoA:-58.97 deg | X:-0.909 | Y: 0.547
+  DETECT | R: 3.475 m | V:-0.024 m/s | AoA: 26.53 deg | X: 1.552 | Y: 3.109
+
+FRAME 17 | Timestamp: 1774890852.7377 | Latency: 47.83 ms | Beam: -33.75 deg
+  DETECT | R: 1.060 m | V:-0.068 m/s | AoA:-58.95 deg | X:-0.908 | Y: 0.547
+  DETECT | R: 3.475 m | V:-0.024 m/s | AoA: 26.67 deg | X: 1.559 | Y: 3.105
+
+FRAME 18 | Timestamp: 1774890852.8926 | Latency: 47.90 ms | Beam: -33.75 deg
+  DETECT | R: 1.061 m | V:-0.063 m/s | AoA:-59.08 deg | X:-0.910 | Y: 0.545
+  DETECT | R: 3.475 m | V:-0.019 m/s | AoA: 26.24 deg | X: 1.537 | Y: 3.117
+
+FRAME 19 | Timestamp: 1774890853.0636 | Latency: 60.75 ms | Beam: -33.75 deg
+  DETECT | R: 1.060 m | V:-0.045 m/s | AoA:-59.49 deg | X:-0.913 | Y: 0.538
+  DETECT | R: 3.475 m | V:-0.015 m/s | AoA: 26.84 deg | X: 1.569 | Y: 3.101
+
+FRAME 20 | Timestamp: 1774890853.2050 | Latency: 42.26 ms | Beam: -33.75 deg
+  DETECT | R: 1.060 m | V:-0.045 m/s | AoA:-59.14 deg | X:-0.910 | Y: 0.544
+  DETECT | R: 3.475 m | V:-0.013 m/s | AoA: 26.42 deg | X: 1.546 | Y: 3.112
+
+FRAME 21 | Timestamp: 1774890853.3633 | Latency: 47.54 ms | Beam: -33.75 deg
+  DETECT | R: 1.060 m | V:-0.040 m/s | AoA:-59.11 deg | X:-0.910 | Y: 0.544
+  DETECT | R: 3.476 m | V:-0.015 m/s | AoA: 26.40 deg | X: 1.546 | Y: 3.113
+
+FRAME 22 | Timestamp: 1774890853.5181 | Latency: 62.10 ms | Beam: -33.75 deg
+  DETECT | R: 1.059 m | V:-0.033 m/s | AoA:-59.52 deg | X:-0.913 | Y: 0.537
+  DETECT | R: 3.475 m | V:-0.014 m/s | AoA: 26.70 deg | X: 1.561 | Y: 3.104
+
+FRAME 23 | Timestamp: 1774890853.6759 | Latency: 50.61 ms | Beam: -33.75 deg
+  DETECT | R: 1.060 m | V:-0.016 m/s | AoA:-60.11 deg | X:-0.919 | Y: 0.528
+  DETECT | R: 3.473 m | V: 0.016 m/s | AoA: 26.11 deg | X: 1.528 | Y: 3.118
+  DETECT | R: 5.756 m | V:-13.092 m/s | AoA:-62.48 deg | X:-5.104 | Y: 2.660
+  DETECT | R: 5.867 m | V:-12.732 m/s | AoA: 42.44 deg | X: 3.959 | Y: 4.330
+
+FRAME 24 | Timestamp: 1774890853.8307 | Latency: 50.25 ms | Beam: -33.75 deg
+  DETECT | R: 3.470 m | V:-0.120 m/s | AoA: 27.19 deg | X: 1.586 | Y: 3.087
+  DETECT | R: 4.030 m | V:-0.036 m/s | AoA:-71.91 deg | X:-3.831 | Y: 1.251

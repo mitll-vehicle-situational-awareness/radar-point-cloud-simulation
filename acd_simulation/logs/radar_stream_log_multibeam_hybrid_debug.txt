@@ -1,0 +1,80 @@
+
+FRAME 0 | Timestamp: 1774893221.6528 | Latency: 196.58 ms | NumBeams: 25 | RawDetections: 5 | FinalDetections: 4
+  DETECT | R: 0.628 m | V: 1.121 m/s | BeamCoarse:  -5.00 deg | BeamInterp:  -4.71 deg | AoA:  -4.71 deg | X:-0.052 | Y: 0.626 | P:2.508e+13
+  DETECT | R: 1.271 m | V: 1.133 m/s | BeamCoarse: -10.00 deg | BeamInterp:  -9.94 deg | AoA:  -9.94 deg | X:-0.219 | Y: 1.252 | P:1.330e+11
+  DETECT | R: 8.826 m | V: 0.088 m/s | BeamCoarse:  -5.00 deg | BeamInterp:  -2.78 deg | AoA:  -2.78 deg | X:-0.427 | Y: 8.815 | P:8.686e+10
+  DETECT | R: 4.088 m | V:-0.003 m/s | BeamCoarse:  -5.00 deg | BeamInterp:  -2.84 deg | AoA:  -2.84 deg | X:-0.202 | Y: 4.083 | P:7.236e+10
+  DEBUG_SELECTED | Ridx:14 | Didx:17 | BeamIdx:11 | BeamCoarse:-5.00 | BeamInterp:-4.71
+
+FRAME 1 | Timestamp: 1774893223.1474 | Latency: 197.59 ms | NumBeams: 25 | RawDetections: 2 | FinalDetections: 2
+  DETECT | R: 0.650 m | V: 0.273 m/s | BeamCoarse:   0.00 deg | BeamInterp:   1.75 deg | AoA:   1.75 deg | X: 0.020 | Y: 0.650 | P:3.636e+13
+  DETECT | R: 8.833 m | V: 0.739 m/s | BeamCoarse:   0.00 deg | BeamInterp:   0.64 deg | AoA:   0.64 deg | X: 0.099 | Y: 8.832 | P:7.650e+10
+  DEBUG_SELECTED | Ridx:15 | Didx:16 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:1.75
+
+FRAME 2 | Timestamp: 1774893223.9692 | Latency: 225.40 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 0.653 m | V: 0.056 m/s | BeamCoarse:   0.00 deg | BeamInterp:   1.50 deg | AoA:   1.50 deg | X: 0.017 | Y: 0.653 | P:4.087e+13
+  DETECT | R: 5.009 m | V:-0.004 m/s | BeamCoarse:  15.00 deg | BeamInterp:  14.29 deg | AoA:  14.29 deg | X: 1.236 | Y: 4.854 | P:1.475e+11
+  DETECT | R: 8.837 m | V: 0.118 m/s | BeamCoarse:   0.00 deg | BeamInterp:   1.90 deg | AoA:   1.90 deg | X: 0.294 | Y: 8.832 | P:1.425e+11
+  DEBUG_SELECTED | Ridx:15 | Didx:16 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:1.50
+
+FRAME 3 | Timestamp: 1774893225.0375 | Latency: 314.42 ms | NumBeams: 25 | RawDetections: 4 | FinalDetections: 4
+  DETECT | R: 0.650 m | V:-1.431 m/s | BeamCoarse:   0.00 deg | BeamInterp:   2.32 deg | AoA:   2.32 deg | X: 0.026 | Y: 0.650 | P:1.045e+13
+  DETECT | R: 5.006 m | V:-0.004 m/s | BeamCoarse:  15.00 deg | BeamInterp:  15.55 deg | AoA:  15.55 deg | X: 1.342 | Y: 4.823 | P:1.446e+11
+  DETECT | R: 8.829 m | V:-0.552 m/s | BeamCoarse:   5.00 deg | BeamInterp:   2.86 deg | AoA:   2.86 deg | X: 0.440 | Y: 8.818 | P:6.415e+10
+  DETECT | R: 1.373 m | V:-1.018 m/s | BeamCoarse:   5.00 deg | BeamInterp:   4.18 deg | AoA:   4.18 deg | X: 0.100 | Y: 1.369 | P:3.397e+10
+  DEBUG_SELECTED | Ridx:15 | Didx:15 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:2.32
+
+FRAME 4 | Timestamp: 1774893225.9633 | Latency: 257.07 ms | NumBeams: 25 | RawDetections: 6 | FinalDetections: 6
+  DETECT | R: 0.624 m | V:-4.831 m/s | BeamCoarse:   5.00 deg | BeamInterp:   5.73 deg | AoA:   5.73 deg | X: 0.062 | Y: 0.621 | P:1.395e+13
+  DETECT | R: 1.268 m | V:-6.982 m/s | BeamCoarse: -60.00 deg | BeamInterp: -60.00 deg | AoA: -60.00 deg | X:-1.098 | Y: 0.634 | P:3.003e+11
+  DETECT | R: 5.009 m | V:-0.006 m/s | BeamCoarse:  15.00 deg | BeamInterp:  15.75 deg | AoA:  15.75 deg | X: 1.360 | Y: 4.820 | P:1.840e+11
+  DETECT | R: 3.458 m | V:-0.021 m/s | BeamCoarse:  35.00 deg | BeamInterp:  33.59 deg | AoA:  33.59 deg | X: 1.913 | Y: 2.881 | P:6.132e+10
+  DETECT | R: 8.892 m | V:-8.352 m/s | BeamCoarse: -55.00 deg | BeamInterp: -55.40 deg | AoA: -55.40 deg | X:-7.320 | Y: 5.049 | P:3.428e+10
+  DETECT | R: 8.801 m | V:-7.796 m/s | BeamCoarse:  10.00 deg | BeamInterp:   8.95 deg | AoA:   8.95 deg | X: 1.369 | Y: 8.694 | P:2.051e+10
+  DEBUG_SELECTED | Ridx:14 | Didx:12 | BeamIdx:13 | BeamCoarse:5.00 | BeamInterp:5.73
+
+FRAME 5 | Timestamp: 1774893227.3132 | Latency: 555.53 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 0.661 m | V:-7.043 m/s | BeamCoarse:  10.00 deg | BeamInterp:   9.08 deg | AoA:   9.08 deg | X: 0.104 | Y: 0.652 | P:1.297e+13
+  DETECT | R: 5.010 m | V: 0.033 m/s | BeamCoarse:  15.00 deg | BeamInterp:  15.25 deg | AoA:  15.25 deg | X: 1.318 | Y: 4.834 | P:2.025e+11
+  DETECT | R: 3.455 m | V:-0.085 m/s | BeamCoarse: -30.00 deg | BeamInterp: -27.82 deg | AoA: -27.82 deg | X:-1.612 | Y: 3.056 | P:7.725e+10
+  DEBUG_SELECTED | Ridx:15 | Didx:10 | BeamIdx:14 | BeamCoarse:10.00 | BeamInterp:9.08
+
+FRAME 6 | Timestamp: 1774893228.3383 | Latency: 336.53 ms | NumBeams: 25 | RawDetections: 2 | FinalDetections: 2
+  DETECT | R: 0.759 m | V:-10.316 m/s | BeamCoarse: -55.00 deg | BeamInterp: -53.04 deg | AoA: -53.04 deg | X:-0.607 | Y: 0.457 | P:1.877e+13
+  DETECT | R: 3.462 m | V:-0.041 m/s | BeamCoarse: -30.00 deg | BeamInterp: -28.31 deg | AoA: -28.31 deg | X:-1.642 | Y: 3.048 | P:4.088e+10
+  DEBUG_SELECTED | Ridx:17 | Didx:8 | BeamIdx:1 | BeamCoarse:-55.00 | BeamInterp:-53.04
+
+FRAME 7 | Timestamp: 1774893228.8791 | Latency: 377.80 ms | NumBeams: 25 | RawDetections: 2 | FinalDetections: 2
+  DETECT | R: 3.466 m | V:-0.046 m/s | BeamCoarse: -30.00 deg | BeamInterp: -28.94 deg | AoA: -28.94 deg | X:-1.677 | Y: 3.033 | P:8.101e+10
+  DETECT | R: 8.818 m | V: 5.072 m/s | BeamCoarse: -25.00 deg | BeamInterp: -23.95 deg | AoA: -23.95 deg | X:-3.580 | Y: 8.059 | P:2.331e+09
+  DEBUG_SELECTED | Ridx:79 | Didx:16 | BeamIdx:6 | BeamCoarse:-30.00 | BeamInterp:-28.94
+
+FRAME 8 | Timestamp: 1774893229.6383 | Latency: 243.62 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 3.949 m | V: 0.850 m/s | BeamCoarse:   0.00 deg | BeamInterp:   0.59 deg | AoA:   0.59 deg | X: 0.040 | Y: 3.949 | P:1.782e+11
+  DETECT | R: 3.468 m | V: 0.041 m/s | BeamCoarse:  35.00 deg | BeamInterp:  32.79 deg | AoA:  32.79 deg | X: 1.878 | Y: 2.915 | P:8.390e+10
+  DETECT | R: 0.862 m | V:-3.533 m/s | BeamCoarse:   0.00 deg | BeamInterp:  -1.69 deg | AoA:  -1.69 deg | X:-0.025 | Y: 0.862 | P:6.232e+10
+  DEBUG_SELECTED | Ridx:90 | Didx:17 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:0.59
+
+FRAME 9 | Timestamp: 1774893230.2951 | Latency: 233.88 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 3.949 m | V: 0.085 m/s | BeamCoarse:   0.00 deg | BeamInterp:   0.83 deg | AoA:   0.83 deg | X: 0.057 | Y: 3.949 | P:1.096e+12
+  DETECT | R: 0.906 m | V:-2.139 m/s | BeamCoarse:  20.00 deg | BeamInterp:  19.46 deg | AoA:  19.46 deg | X: 0.302 | Y: 0.854 | P:1.164e+11
+  DETECT | R: 3.468 m | V:-0.012 m/s | BeamCoarse: -30.00 deg | BeamInterp: -27.97 deg | AoA: -27.97 deg | X:-1.627 | Y: 3.063 | P:7.978e+10
+  DEBUG_SELECTED | Ridx:90 | Didx:16 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:0.83
+
+FRAME 10 | Timestamp: 1774893231.0894 | Latency: 282.19 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 3.950 m | V: 0.039 m/s | BeamCoarse:   0.00 deg | BeamInterp:   0.86 deg | AoA:   0.86 deg | X: 0.059 | Y: 3.949 | P:1.247e+12
+  DETECT | R: 0.958 m | V:-2.694 m/s | BeamCoarse: -60.00 deg | BeamInterp: -60.00 deg | AoA: -60.00 deg | X:-0.829 | Y: 0.479 | P:9.366e+10
+  DETECT | R: 3.468 m | V:-0.009 m/s | BeamCoarse: -30.00 deg | BeamInterp: -29.01 deg | AoA: -29.01 deg | X:-1.682 | Y: 3.033 | P:8.416e+10
+  DEBUG_SELECTED | Ridx:90 | Didx:16 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:0.86
+
+FRAME 11 | Timestamp: 1774893231.6771 | Latency: 135.80 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 3.950 m | V: 0.031 m/s | BeamCoarse:   0.00 deg | BeamInterp:   0.80 deg | AoA:   0.80 deg | X: 0.055 | Y: 3.950 | P:1.326e+12
+  DETECT | R: 3.466 m | V:-0.018 m/s | BeamCoarse:  35.00 deg | BeamInterp:  33.25 deg | AoA:  33.25 deg | X: 1.900 | Y: 2.899 | P:8.240e+10
+  DETECT | R: 0.965 m | V:-1.189 m/s | BeamCoarse: -10.00 deg | BeamInterp:  -8.90 deg | AoA:  -8.90 deg | X:-0.149 | Y: 0.954 | P:6.549e+10
+  DEBUG_SELECTED | Ridx:90 | Didx:16 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:0.80
+
+FRAME 12 | Timestamp: 1774893232.3902 | Latency: 235.20 ms | NumBeams: 25 | RawDetections: 3 | FinalDetections: 3
+  DETECT | R: 3.950 m | V:-0.044 m/s | BeamCoarse:   0.00 deg | BeamInterp:   0.53 deg | AoA:   0.53 deg | X: 0.036 | Y: 3.950 | P:1.461e+12
+  DETECT | R: 0.964 m | V: 0.330 m/s | BeamCoarse:   5.00 deg | BeamInterp:   4.74 deg | AoA:   4.74 deg | X: 0.080 | Y: 0.961 | P:1.621e+11
+  DETECT | R: 3.466 m | V:-0.032 m/s | BeamCoarse:  35.00 deg | BeamInterp:  32.81 deg | AoA:  32.81 deg | X: 1.878 | Y: 2.913 | P:8.394e+10
+  DEBUG_SELECTED | Ridx:90 | Didx:16 | BeamIdx:12 | BeamCoarse:0.00 | BeamInterp:0.53
