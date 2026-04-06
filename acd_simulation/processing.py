@@ -193,11 +193,6 @@ class RadarSensor:
         # Sum across TX and RX to get integrated RD power
         range_doppler_power = np.sum(np.abs(radar_cube) ** 2, axis=(1, 2))
 
-        # --- DC GUARD ZONE ---
-        # Zero out the first 3-5 bins (adjust based on your range resolution)
-        # This prevents the "blob" at 0m from being detected
-        # range_doppler_power[:4, :] = 0
-
         num_range_bins, num_doppler_bins = range_doppler_power.shape
         # print("NUM OF BINS: ", range_doppler_power.shape)
 
@@ -304,6 +299,29 @@ class RadarSensor:
                 f"phase={np.rad2deg(np.unwrap(np.angle(x)))}"
             )
 
+    def compute_aoa_fft(self, range_cube, r_idx, tx_idx=0, USE_ARGMAX=True):
+        # phase_shift = 2 * np.pi * self.antenna_spacing * sin(theta) / self.wavelength
+        
+        ant = range_cube[r_idx, tx_idx, :, 0]
+        ant_windowed = ant * np.hamming(len(ant))
+        
+        aoa_fft = np.fft.fftshift(np.fft.fft(ant_windowed, n=64))
+        aoa_power = np.abs(aoa_fft) ** 2
+        
+        # convert bins to angle values [-90, 90]
+        angle_bins = np.degrees(np.arcsin(np.linspace(-1, 1, 64)))
+        
+        if USE_ARGMAX:
+            # find peak w/ argmax and estimate angle
+            peak_idx = np.argmax(aoa_power)
+            m_aoa = angle_bins[peak_idx]
+        else:
+            m_aoa = angle_bins[32] # using the center bin
+        
+        print("AOA in degrees: ", m_aoa)
+        return m_aoa
+
+    
 
 def run_radar_simulation(ss):
     # ss = stream_data_cs_team.dataStream()
@@ -446,10 +464,14 @@ def run_radar_simulation(ss):
                 # ax_raw_rp.set_ylabel("Power (dB)")
                 # ax_raw_rp.grid(True)
 
-                r_aoa_idx = radar.get_best_aoa_bin(range_cube, r_idx, tx_idx=0, width=4)
-                m_aoa_deg = radar.estimate_aoa(range_cube, r_aoa_idx, tx_idx=0)
-                radar.inspect_range_bins_basic(range_cube, r_idx, tx_idx=0, width=4)
+                # Method 1: Basic AOA
+                # r_aoa_idx = radar.get_best_aoa_bin(range_cube, r_idx, tx_idx=0, width=4)
+                # m_aoa_deg = radar.estimate_aoa(range_cube, r_aoa_idx, tx_idx=0)
+                # radar.inspect_range_bins_basic(range_cube, r_idx, tx_idx=0, width=4)
                 
+                # Method 2: Angle FFT
+                m_aoa_deg = radar.compute_aoa_fft(range_cube, r_idx)
+    
                 # angle_spectrum = radar.get_angle_spectrum(range_cube, r_idx, d_idx)
                 # ang_idx = np.argmax(angle_spectrum)
 
