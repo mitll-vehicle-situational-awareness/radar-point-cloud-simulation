@@ -35,31 +35,6 @@ class RadarSensor:
         doppler_bins = np.arange(self.num_chirp_loops) - (self.num_chirp_loops // 2)
         self.velocity_axis = doppler_bins * velocity_res
 
-        # # Full virtual array size for TDM-MIMO
-        # self.num_virtual_ant = self.num_tx * self.num_rx
-
-        # # Capon / steering-vector grid
-        # self.angle_res_deg = 1.0
-        # self.angle_rng_deg = 90.0
-        # self.angle_axis = np.arange(
-        #     -self.angle_rng_deg,
-        #     self.angle_rng_deg + self.angle_res_deg,
-        #     self.angle_res_deg
-        # )
-
-        # # Half-wavelength ULA steering matrix
-        # self.steering_vector = self.compute_steering_vector(
-        #     num_ant=self.num_virtual_ant,
-        #     angle_res=self.angle_res_deg,
-        #     angle_rng=self.angle_rng_deg
-        # )
-        
-        # self.steering_vector_rx_only = self.compute_steering_vector(
-        #     num_ant=self.num_rx,
-        #     angle_res=self.angle_res_deg,
-        #     angle_rng=self.angle_rng_deg
-        # )
-
         print(sample.shape)
         print("range_res: ", range_res)
         print("velocity_res: ", velocity_res)
@@ -90,89 +65,6 @@ class RadarSensor:
         rd_cube_txrx = np.fft.fftshift(rd_cube_txrx, axes=3)
 
         return range_cube, rd_cube_txrx
-    
-    # def get_angle_estimation(self, rd_map):
-    #     rd_padded = np.pad(rd_map, pad_width=[(0, 0), (86, 87), (0, 0)], mode='constant')
-    #     az_fft = np.fft.fftshift(np.fft.fft(rd_padded, axis=1), axes=1)
-    #     az_power = np.abs(az_fft) ** 2
-    #     beamformed_img = np.flipud(np.mean(az_power, axis=2))
-    #     plt.figure(figsize=(5, 10))
-    #     plt.imshow(np.log(beamformed_img))
-    #     plt.show()
-    
-    def get_best_aoa_bin(self, range_cube, r_idx, tx_idx=0, width=4):
-        candidates = []
-
-        r_start = max(0, r_idx - width)
-        r_end = min(range_cube.shape[0], r_idx + width + 1)
-
-        for r in range(r_start, r_end):
-            cell = range_cube[r, tx_idx, ::-1, :]   # match estimate_aoa RX order
-            x = cell[:, 0]                          # match estimate_aoa chirp choice
-            x = x * np.exp(-1j * np.angle(x[0]))
-
-            # adjacent phase differences
-            phase_diff = np.angle(x[1:] * np.conj(x[:-1]))
-            phase_diff_avg = np.mean(phase_diff)
-
-            theta = np.arcsin(np.clip(phase_diff_avg / np.pi, -1.0, 1.0))
-            theta_deg = np.rad2deg(theta)
-
-            power = np.sum(np.abs(cell) ** 2)
-
-            candidates.append((r, power, theta_deg, x))
-
-        best_r = r_idx
-        best_score = -np.inf
-
-        for i, (r, power, theta_deg, x) in enumerate(candidates):
-            neighbor_thetas = []
-
-            if i > 0:
-                neighbor_thetas.append(candidates[i - 1][2])
-            if i < len(candidates) - 1:
-                neighbor_thetas.append(candidates[i + 1][2])
-
-            if neighbor_thetas:
-                consistency = -np.mean(np.abs(np.array(neighbor_thetas) - theta_deg))
-            else:
-                consistency = 0.0
-
-            score = np.log(power + 1e-12) + 0.2 * consistency
-
-            print(
-                f"r={r}, range={self.range_axis[r]:.3f} m, power={power:.3e}, "
-                f"theta={theta_deg:6.2f} deg, "
-                f"phase={np.rad2deg(np.unwrap(np.angle(x)))}"
-            )
-
-            if score > best_score:
-                best_score = score
-                best_r = r
-
-        print("BEST AOA IDX:", best_r)
-        return best_r
-
-
-    def estimate_aoa(self, range_cube, r_idx, tx_idx=0):
-        cell = range_cube[r_idx, tx_idx, ::-1, :]  # same RX order as selector
-        x = cell[:, 0]                             # same chirp choice as selector
-        x = x * np.exp(-1j * np.angle(x[0]))
-
-        phase_diff = np.angle(x[1:] * np.conj(x[:-1]))  # adjacent pairs
-        phase_diff_avg = np.mean(phase_diff)
-
-        theta = np.arcsin(np.clip(phase_diff_avg / np.pi, -1.0, 1.0))
-        theta_deg = np.rad2deg(theta)
-
-        print("mag:", np.abs(x))
-        print("wrapped phase (deg):", np.rad2deg(np.angle(x)))
-        print("unwrapped phase (deg):", np.rad2deg(np.unwrap(np.angle(x))))
-        print("adjacent phase_diff (deg):", np.rad2deg(phase_diff))
-        print("basic aoa (deg):", theta_deg)
-
-        return theta_deg
-
     
     def detect_targets_2d(
         self,
@@ -280,48 +172,29 @@ class RadarSensor:
 
         return detections
 
-    def inspect_range_bins_basic(self, range_cube, r_center, tx_idx=0, width=4):
-        for r in range(max(0, r_center - width), min(range_cube.shape[0], r_center + width + 1)):
-            X = range_cube[r, tx_idx, :, :]   # [rx, chirp]
-
-            # first chirp only
-            x = X[:, 0]
-            x = x * np.exp(-1j * np.angle(x[0]))
-
-            dphi = np.angle(x[1:] * np.conj(x[:-1]))
-            theta_deg = np.rad2deg(np.arcsin(np.clip(np.mean(dphi) / np.pi, -1.0, 1.0)))
-
-            power = np.sum(np.abs(X)**2)
-
-            print(
-                f"r={r:3d}, range={self.range_axis[r]:.3f} m, "
-                f"power={power:.3e}, theta={theta_deg:7.2f} deg, "
-                f"phase={np.rad2deg(np.unwrap(np.angle(x)))}"
-            )
-
-    def compute_aoa_fft(self, range_cube, r_idx, tx_idx=0, USE_ARGMAX=True):
-        # phase_shift = 2 * np.pi * self.antenna_spacing * sin(theta) / self.wavelength
+    def compute_aoa_fft(self, range_cube, r_idx, tx_idx=0, USE_ARGMAX=True):        
+        # two pairs across azimuth / elevation
+        # compute the phase shift between the pair
         
-        ant = range_cube[r_idx, tx_idx, :, 0]
-        ant_windowed = ant * np.hamming(len(ant))
-        
-        aoa_fft = np.fft.fftshift(np.fft.fft(ant_windowed, n=64))
-        aoa_power = np.abs(aoa_fft) ** 2
-        
-        # convert bins to angle values [-90, 90]
-        angle_bins = np.degrees(np.arcsin(np.linspace(-1, 1, 64)))
-        
-        if USE_ARGMAX:
-            # find peak w/ argmax and estimate angle
-            peak_idx = np.argmax(aoa_power)
-            m_aoa = angle_bins[peak_idx]
-        else:
-            m_aoa = angle_bins[32] # using the center bin
-        
-        print("AOA in degrees: ", m_aoa)
-        return m_aoa
-
+        ant = range_cube[r_idx, tx_idx, :, 0] # [RX0, RX1, RX2, RX3]
     
+        # Reshape into 2x2 grid based on AOP geometry
+        # Row 0: RX0, RX2 | Row 1: RX1, RX3
+        ant_grid = np.array([
+            [ant[0], ant[2]],
+            [ant[1], ant[3]]
+        ])
+        
+        aoa_2d_fft = np.fft.fftshift(np.fft.fft2(ant_grid, s=(64, 64)))
+        mag_sq = np.abs(aoa_2d_fft)**2
+        el_idx, az_idx = np.unravel_index(np.argmax(mag_sq), mag_sq.shape)
+        
+        # Convert bins to angles
+        bins = np.fft.fftshift(np.fft.fftfreq(64))
+        az_deg = np.degrees(np.arcsin(np.clip(2 * bins[az_idx], -1.0, 1.0)))
+        el_deg = np.degrees(np.arcsin(np.clip(2 * bins[el_idx], -1.0, 1.0)))
+        
+        return az_deg, el_deg
 
 def run_radar_simulation(ss):
     # ss = stream_data_cs_team.dataStream()
@@ -442,7 +315,7 @@ def run_radar_simulation(ss):
                 rp_db = 20.0 * np.log10(rp + EPSILON)
 
                 ax_rp.plot(radar.range_axis, rp_db, 'b-')
-                ax_rp.set_title("Integrated Range Profile")
+                ax_rp.set_title("Range Profile (Sum of TX and RX)")
                 ax_rp.set_xlabel("Range (m)")
                 ax_rp.set_ylabel("Power (dB)")
                 ax_rp.grid(True)
@@ -464,47 +337,18 @@ def run_radar_simulation(ss):
                 # ax_raw_rp.set_ylabel("Power (dB)")
                 # ax_raw_rp.grid(True)
 
-                # Method 1: Basic AOA
-                # r_aoa_idx = radar.get_best_aoa_bin(range_cube, r_idx, tx_idx=0, width=4)
-                # m_aoa_deg = radar.estimate_aoa(range_cube, r_aoa_idx, tx_idx=0)
-                # radar.inspect_range_bins_basic(range_cube, r_idx, tx_idx=0, width=4)
-                
-                # Method 2: Angle FFT
-                m_aoa_deg = radar.compute_aoa_fft(range_cube, r_idx)
+                m_aoa_deg, m_elev_deg = radar.compute_aoa_fft(range_cube, r_idx)
     
-                # angle_spectrum = radar.get_angle_spectrum(range_cube, r_idx, d_idx)
-                # ang_idx = np.argmax(angle_spectrum)
-
-                # a0 = angle_spectrum[ang_idx]
-                # a_l = angle_spectrum[ang_idx - 1] if ang_idx > 0 else a0
-                # a_r = angle_spectrum[ang_idx + 1] if ang_idx < len(angle_spectrum) - 1 else a0
-
-                # if 0 < ang_idx < len(angle_spectrum) - 1:
-                #     p_l = np.log(a_l + EPSILON)
-                #     p_0 = np.log(a0 + EPSILON)
-                #     p_r = np.log(a_r + EPSILON)
-
-                #     denom = (p_l - 2 * p_0 + p_r)
-                #     frac_offset = 0.0 if abs(denom) < 1e-12 else 0.5 * (p_l - p_r) / denom
-                #     frac_offset = np.clip(frac_offset, -0.5, 0.5)
-
-                #     m_aoa_deg = (
-                #         radar.angle_axis[ang_idx]
-                #         + frac_offset * (radar.angle_axis[1] - radar.angle_axis[0])
-                #     ).item()
-                # else:
-                #     m_aoa_deg = radar.angle_axis[ang_idx].item()
+                print("AZIMUTH: ", m_aoa_deg)
+                print("ELEVATION: ", m_elev_deg)
 
                 mx = interp_r * np.sin(np.deg2rad(m_aoa_deg))
                 my = interp_r * np.cos(np.deg2rad(m_aoa_deg))
                 
-                bev_range = np.sqrt(mx**2 + my**2)
-                print("RD range:", radar.range_axis[r_idx]) 
-                print("BEV slant range:", bev_range)
-                print("angle (deg): ", m_aoa_deg)
-                
-                # print("corrected (v1):", m_aoa_deg - 90)
-                # print("corrected (v2):", 90 - m_aoa_deg)
+                # bev_range = np.sqrt(mx**2 + my**2)
+                print("RD range:", radar.range_axis[r_idx])
+                # print("BEV slant range:", bev_range)
+                # print("angle (deg): ", m_aoa_deg)
                 # print("mx:", mx)
                 # print("my:", my)
 

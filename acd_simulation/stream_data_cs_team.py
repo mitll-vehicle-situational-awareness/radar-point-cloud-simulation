@@ -15,9 +15,9 @@ from processing import run_radar_simulation
 # FILENAME = "../../radar_camera_sdk/data/no_acrylic/output/stream1R.bin"
 # FILENAME = "../../radar_camera_sdk/data/acrylic_with_hole/stream1R.bin"
 
-# FILENAME = "../../radar_camera_sdk/data/cole_0/output/stream1R.bin" # m_aoa = 90
-FILENAME = "../../radar_camera_sdk/data/cole_45/output/stream1R.bin" # m_aoa = -45
-# FILENAME = "../../radar_camera_sdk/data/cole_-45/output/stream1R.bin" #m_aoa = 51
+FILENAME = "../../radar_camera_sdk/data/cole_0/output/stream1R.bin" # m_aoa = 75
+# FILENAME = "../../radar_camera_sdk/data/cole_45/output/stream1R.bin" # m_aoa = -45
+# FILENAME = "../../radar_camera_sdk/data/cole_-45/output/stream1R.bin" #m_aoa = 48
 
 CONFIG_FILENAME = "GoodCfg_Matlab.cfg"
 DIR_PATH = "../../radar_camera_sdk/data/aligned_frames_new/output/radar"
