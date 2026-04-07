@@ -155,7 +155,12 @@ def load_peak_rae(csv_path: Path) -> tuple[float, float, float]:
     if missing:
         raise ValueError(f"{csv_path.name} missing columns: {sorted(missing)}")
 
-    peak_row = df.loc[df["magnitude_db"].idxmax()]
+    targets = df[(df["is_target"] == 1) & (df["range_m"] > 0.5)]
+    if targets.empty:
+        return (0.0, 0.0, 0.0)
+
+    # peak_row = df.loc[df["magnitude_db"].idxmax()]
+    peak_row = targets.loc[targets["magnitude_db"].idxmax()]
     return (
         float(peak_row["range_m"]),
         float(peak_row["azimuth_deg"]),
@@ -172,13 +177,15 @@ def main() -> None:
         f"(idx {pairs[0][0]} to {pairs[-1][0]})."
     )
 
-    fig = plt.figure(figsize=(14, 8))
-    gs = fig.add_gridspec(2, 2, height_ratios=[3, 2])
+    fig = plt.figure(figsize=(16, 10))
+    gs = fig.add_gridspec(2, 3, height_ratios=[2, 1])
     ax_rd = fig.add_subplot(gs[0, 0])
     ax_cam = fig.add_subplot(gs[0, 1])
-    ax_rae = fig.add_subplot(gs[1, :])
+    ax_range = fig.add_subplot(gs[1, 0])
+    ax_azimuth = fig.add_subplot(gs[1, 1])
+    ax_elevation = fig.add_subplot(gs[1, 2])
     fig.suptitle("Range-Doppler, Camera, and RAE Viewer")
-    plt.subplots_adjust(bottom=0.12)
+    plt.subplots_adjust(bottom=0.12, hspace=0.4)
 
     state = {"pos": 0, "playing": not args.no_autoplay}
 
@@ -219,29 +226,35 @@ def main() -> None:
         peak_azimuth.append(az_deg)
         peak_elevation.append(el_deg)
 
-    ax_rae.plot(frame_ids, peak_range, label="Range (m)", color="tab:blue", linewidth=1.8)
-    ax_rae.plot(
-        frame_ids,
-        peak_azimuth,
-        label="Azimuth (deg)",
-        color="tab:orange",
-        linewidth=1.8,
-    )
-    ax_rae.plot(
-        frame_ids,
-        peak_elevation,
-        label="Elevation (deg)",
-        color="tab:green",
-        linewidth=1.8,
-    )
-    current_frame_line = ax_rae.axvline(
+    ax_range.plot(frame_ids, peak_range, label="Range (m)", color="tab:blue", linewidth=1.8)
+    current_frame_line_range = ax_range.axvline(
         frame_ids[0], color="tab:red", linestyle="--", linewidth=1.5, label="Current frame"
     )
-    ax_rae.set_xlabel("Frame index")
-    ax_rae.set_ylabel("Value")
-    ax_rae.set_title("Peak-bin Range / Azimuth / Elevation per frame")
-    ax_rae.grid(True, alpha=0.3)
-    ax_rae.legend(loc="upper right")
+    ax_range.set_xlabel("Frame index")
+    ax_range.set_ylabel("Range (m)")
+    ax_range.set_title("Peak-bin Range per frame")
+    ax_range.grid(True, alpha=0.3)
+    ax_range.legend(loc="lower right")
+
+    ax_azimuth.plot(frame_ids, peak_azimuth, label="Azimuth (deg)", color="tab:orange", linewidth=1.8)
+    current_frame_line_azimuth = ax_azimuth.axvline(
+        frame_ids[0], color="tab:red", linestyle="--", linewidth=1.5, label="Current frame"
+    )
+    ax_azimuth.set_xlabel("Frame index")
+    ax_azimuth.set_ylabel("Azimuth (deg)")
+    ax_azimuth.set_title("Peak-bin Azimuth per frame")
+    ax_azimuth.grid(True, alpha=0.3)
+    ax_azimuth.legend(loc="lower right")
+
+    ax_elevation.plot(frame_ids, peak_elevation, label="Elevation (deg)", color="tab:green", linewidth=1.8)
+    current_frame_line_elevation = ax_elevation.axvline(
+        frame_ids[0], color="tab:red", linestyle="--", linewidth=1.5, label="Current frame"
+    )
+    ax_elevation.set_xlabel("Frame index")
+    ax_elevation.set_ylabel("Elevation (deg)")
+    ax_elevation.set_title("Peak-bin Elevation per frame")
+    ax_elevation.grid(True, alpha=0.3)
+    ax_elevation.legend(loc="lower right")
 
     fig.text(
         0.5,
@@ -258,15 +271,14 @@ def main() -> None:
 
         rd_im.set_data(rd_grid.T)
         cam_im.set_data(cam_img)
-        current_frame_line.set_xdata([idx, idx])
+        current_frame_line_range.set_xdata([idx, idx])
+        current_frame_line_azimuth.set_xdata([idx, idx])
+        current_frame_line_elevation.set_xdata([idx, idx])
         ax_rd.set_title(f"Range-Doppler (frame {idx})")
         ax_cam.set_title(f"Camera image (frame {idx})")
-        ax_rae.set_title(
-            "Peak-bin Range / Azimuth / Elevation per frame "
-            f"(range={peak_range[state['pos']]:.2f} m, "
-            f"az={peak_azimuth[state['pos']]:.2f} deg, "
-            f"el={peak_elevation[state['pos']]:.2f} deg)"
-        )
+        ax_range.set_title(f"Peak-bin Range per frame (current: {peak_range[state['pos']]:.2f} m)")
+        ax_azimuth.set_title(f"Peak-bin Azimuth per frame (current: {peak_azimuth[state['pos']]:.2f} deg)")
+        ax_elevation.set_title(f"Peak-bin Elevation per frame (current: {peak_elevation[state['pos']]:.2f} deg)")
         fig.canvas.draw_idle()
 
     def step_next(_frame_number: int | None = None):

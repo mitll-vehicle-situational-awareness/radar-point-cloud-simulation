@@ -116,13 +116,26 @@ def frame_to_range_doppler_rows(
     rd_amp = np.sqrt(np.sum(np.abs(rd_cube) ** 2, axis=(1, 2)))
     rd_db = 20.0 * np.log10(rd_amp + EPSILON)
 
-    n_rng, n_dop = rd_db.shape
+    n_rng, n_dop = rd_db.shape # 256, 16
+    detections = set(radar.detect_targets_2d(rd_cube)) # returns a list of (rng_idx, dop_idx)
+
     # compute_aoa_fft depends on range bin index (not Doppler bin), so precompute once/range.
-    aoa_per_range = [radar.compute_aoa_fft(range_cube, r) for r in range(n_rng)]
+    # aoa_per_range = [radar.compute_aoa_fft(range_cube, r) for r in range(n_rng)]
+    # rows = []
+    # for d in range(n_dop):
+    #     for r in range(n_rng):
+    #         azimuth_deg, elevation_deg = aoa_per_range[r]
+    
     rows = []
-    for d in range(n_dop):
-        for r in range(n_rng):
-            azimuth_deg, elevation_deg = aoa_per_range[r]
+    for r in range(n_rng):
+        has_detection = any((r, d) in detections for d in range(n_dop))
+        if has_detection:
+            azimuth_deg, elevation_deg = radar.compute_aoa_fft(range_cube, r)
+        else:
+            azimuth_deg, elevation_deg = 0.0, 0.0
+
+        for d in range(n_dop):
+            is_target = (r, d) in detections
             rows.append(
                 {
                     "frame": frame_idx,
@@ -135,6 +148,7 @@ def frame_to_range_doppler_rows(
                     "elevation_deg": float(elevation_deg),
                     "magnitude_linear": float(rd_amp[r, d]),
                     "magnitude_db": float(rd_db[r, d]),
+                    "is_target": int(is_target)
                 }
             )
     return rows

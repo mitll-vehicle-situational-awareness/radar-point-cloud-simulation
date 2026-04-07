@@ -179,7 +179,6 @@ class RadarSensor:
         ant = range_cube[r_idx, tx_idx, :, 0] # [RX0, RX1, RX2, RX3]
     
         # Reshape into 2x2 grid based on AOP geometry
-        # Row 0: RX0, RX2 | Row 1: RX1, RX3
         ant_grid = np.array([
             [ant[0], ant[2]],
             [ant[1], ant[3]]
@@ -195,6 +194,34 @@ class RadarSensor:
         el_deg = np.degrees(np.arcsin(np.clip(2 * bins[el_idx], -1.0, 1.0)))
         
         return az_deg, el_deg
+    
+    def get_filtered_rng_dop(self, rd_cube, r_idx, d_idx):
+        # Range interpolation
+        r_prev, r_next = r_idx - 1, r_idx + 1
+        y0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
+        y_l = np.sqrt(np.sum(np.abs(rd_cube[r_prev, :, :, d_idx])**2))
+        y_r = np.sqrt(np.sum(np.abs(rd_cube[r_next, :, :, d_idx])**2))
+
+        interp_r = (
+            self.range_axis[r_idx]
+            + (self.range_axis[1] - self.range_axis[0])
+            * ((y_l - y_r) / (2 * (y_l + y_r - 2 * y0 + EPSILON)))
+        ).item()
+
+        # Doppler interpolation
+        d_prev = (d_idx - 1) % self.num_chirp_loops
+        d_next = (d_idx + 1) % self.num_chirp_loops
+        v_l = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_prev])**2))
+        v_r = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_next])**2))
+        v0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
+        
+        interp_v = (
+            self.velocity_axis[d_idx]
+            + (self.velocity_axis[1] - self.velocity_axis[0])
+            * ((v_l - v_r) / (2 * (v_l + v_r - 2 * v0 + EPSILON)))
+        ).item()
+        
+        return (interp_r, interp_v)
 
 def run_radar_simulation(ss):
     # ss = stream_data_cs_team.dataStream()
@@ -280,30 +307,7 @@ def run_radar_simulation(ss):
 
             for r_idx, d_idx in detections:
                 # Range interpolation
-                r_prev, r_next = r_idx - 1, r_idx + 1
-                y0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
-                y_l = np.sqrt(np.sum(np.abs(rd_cube[r_prev, :, :, d_idx])**2))
-                y_r = np.sqrt(np.sum(np.abs(rd_cube[r_next, :, :, d_idx])**2))
-
-                interp_r = (
-                    radar.range_axis[r_idx]
-                    + (radar.range_axis[1] - radar.range_axis[0])
-                    * ((y_l - y_r) / (2 * (y_l + y_r - 2 * y0 + EPSILON)))
-                ).item()
-
-                # Doppler interpolation
-                d_prev = (d_idx - 1) % radar.num_chirp_loops
-                d_next = (d_idx + 1) % radar.num_chirp_loops
-                v_l = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_prev])**2))
-                v_r = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_next])**2))
-                v0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
-                
-                interp_v = (
-                    radar.velocity_axis[d_idx]
-                    + (radar.velocity_axis[1] - radar.velocity_axis[0])
-                    * ((v_l - v_r) / (2 * (v_l + v_r - 2 * v0 + EPSILON)))
-                ).item()
-                
+                interp_r, interp_v = radar.get_filtered_rng_dop(rd_cube, r_idx, d_idx)
                 ax_rd.plot(interp_v, interp_r, 'ro', markersize=4)
                 f.write(
                     f"OBJECT DETECTED! velocity: {interp_v:.3f} | slant range: {interp_r:.3f}\n"
@@ -345,12 +349,12 @@ def run_radar_simulation(ss):
                 mx = interp_r * np.sin(np.deg2rad(m_aoa_deg))
                 my = interp_r * np.cos(np.deg2rad(m_aoa_deg))
                 
-                # bev_range = np.sqrt(mx**2 + my**2)
+                bev_range = np.sqrt(mx**2 + my**2)
                 print("RD range:", radar.range_axis[r_idx])
-                # print("BEV slant range:", bev_range)
-                # print("angle (deg): ", m_aoa_deg)
-                # print("mx:", mx)
-                # print("my:", my)
+                print("BEV slant range:", bev_range)
+                print("angle (deg): ", m_aoa_deg)
+                print("mx:", mx)
+                print("my:", my)
 
                 ax_bev.plot(mx, my, 'bo')
                 f.write(
