@@ -106,14 +106,46 @@ def frame_to_range_doppler_rows(
     bin_path: Path,
 ) -> list[dict]:
     """Read one bin file and export full RD map rows using processing.py logic."""
+    # TODO: uncomment this later
     with contextlib.redirect_stdout(io.StringIO()):
         frame_raw = _read_frame_with_processing_bin_logic(bin_path)
         radar = RadarSensor(frame_raw)
         range_cube, rd_cube = radar.process_tdm_mimo_cube(frame_raw)
 
-    # Match processing.py visualization: integrate TX/RX for [range, doppler].
-    rd_amp = np.sqrt(np.sum(np.abs(rd_cube) ** 2, axis=(1, 2)))
-    rd_db = 20.0 * np.log10(rd_amp + EPSILON)
+    # Match processing.py visualization: TX/RX-summed power for [range, doppler].
+    rd_power = np.sum(np.abs(rd_cube) ** 2, axis=(1, 2))
+    rd_db = 10.0 * np.log10(rd_power + EPSILON)
+    
+    # --- DEBUG STUFF ---
+    # if frame_idx == 0:
+    # expected_shape = (radar.range_axis.size, radar.velocity_axis.size)
+    # print(f"[RD DEBUG] rd_db shape: {rd_db.shape}, expected: {expected_shape}")
+    # if rd_db.shape == expected_shape:
+    #     print("[RD DEBUG] Orientation check: [range, doppler] (no transpose needed).")
+    # elif rd_db.shape == (expected_shape[1], expected_shape[0]):
+    #     print("[RD DEBUG] Orientation check: [doppler, range] (transpose likely needed).")
+    # else:
+    #     print("[RD DEBUG] Orientation check: unexpected shape.")
+
+    # # Horizontal mirror check: compare integrated energy at negative vs positive Doppler.
+    # center_d = rd_db.shape[1] // 2
+    # neg_energy = np.mean(rd_db[:, :center_d])
+    # pos_energy = np.mean(rd_db[:, center_d:])
+    # print(
+    #     "[RD DEBUG] Doppler-side mean power (dB) | "
+    #     f"negative: {neg_energy:.2f}, positive: {pos_energy:.2f}, delta(pos-neg): {pos_energy - neg_energy:.2f}"
+    # )
+
+    # # Vertical flip check: compare near-range vs far-range energy.
+    # center_r = rd_db.shape[0] // 2
+    # near_energy = np.mean(rd_db[:center_r, :])
+    # far_energy = np.mean(rd_db[center_r:, :])
+    # print(
+    #     "[RD DEBUG] Range-half mean power (dB) | "
+    #     f"near: {near_energy:.2f}, far: {far_energy:.2f}, delta(far-near): {far_energy - near_energy:.2f}"
+    # )
+
+    # -----------------
 
     n_rng, n_dop = rd_db.shape # 256, 16
     detections = set(radar.detect_targets_2d(rd_cube)) # returns a list of (rng_idx, dop_idx)
@@ -145,7 +177,7 @@ def frame_to_range_doppler_rows(
                     "range_m": float(radar.range_axis[r]),
                     "azimuth_deg": float(azimuth_deg),
                     "elevation_deg": float(elevation_deg),
-                    "magnitude_linear": float(rd_amp[r, d]),
+                    "magnitude_linear": float(rd_power[r, d]),
                     "magnitude_db": float(rd_db[r, d]),
                     "is_target": int(is_target)
                 }
