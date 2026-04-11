@@ -10,6 +10,7 @@ Output: output_apple_moving/range_doppler_per_frame/frame_XXXX.csv
 
 from __future__ import annotations
 
+import argparse
 import contextlib
 import io
 from pathlib import Path
@@ -21,10 +22,8 @@ from processing import EPSILON, RadarSensor
 
 # Paths (script lives in acd_simulation/)
 _SCRIPT_DIR = Path(__file__).resolve().parent
-RADAR_DIR = _SCRIPT_DIR / "output_apple_moving" / "radar"
-OUTPUT_FRAMES_DIR = _SCRIPT_DIR / "output_apple_moving" / "range_doppler_per_frame"
 
-NUM_FRAMES_TO_EXPORT = 98
+NUM_FRAMES_TO_EXPORT = 15
 
 # OUTPUT_BIN_CONFIG — 48 chirps/frame, 4 RX, 256 ADC (TDM-MIMO with 3 TX -> 16 loops)
 CONFIG_TYPE = "OUTPUT_BIN_CONFIG"
@@ -154,25 +153,46 @@ def frame_to_range_doppler_rows(
     return rows
 
 
-def main():
-    if not RADAR_DIR.is_dir():
-        raise FileNotFoundError(f"Radar directory not found: {RADAR_DIR}")
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Export per-frame range-Doppler CSVs from a radar output folder."
+    )
+    parser.add_argument(
+        "folder",
+        type=str,
+        help="Output folder name (e.g. 'output_tape') containing a 'radar/' subdirectory.",
+    )
+    return parser.parse_args()
 
-    files = iter_radar_bins_sorted(RADAR_DIR, NUM_FRAMES_TO_EXPORT)
+
+def main():
+    args = parse_args()
+
+    folder_path = Path(args.folder)
+    if not folder_path.is_absolute():
+        folder_path = _SCRIPT_DIR / folder_path
+
+    radar_dir = folder_path / "radar"
+    output_frames_dir = folder_path / "range_doppler_per_frame"
+
+    if not radar_dir.is_dir():
+        raise FileNotFoundError(f"Radar directory not found: {radar_dir}")
+
+    files = iter_radar_bins_sorted(radar_dir, NUM_FRAMES_TO_EXPORT)
     if len(files) < NUM_FRAMES_TO_EXPORT:
         raise FileNotFoundError(
-            f"Expected at least {NUM_FRAMES_TO_EXPORT} radar*.bin files in {RADAR_DIR}, "
+            f"Expected at least {NUM_FRAMES_TO_EXPORT} radar*.bin files in {radar_dir}, "
             f"found {len(files)}"
         )
 
-    OUTPUT_FRAMES_DIR.mkdir(parents=True, exist_ok=True)
+    output_frames_dir.mkdir(parents=True, exist_ok=True)
     for i, bin_path in enumerate(files):
         print(f"Frame {i + 1}/{len(files)}: {bin_path.name}")
         rows = frame_to_range_doppler_rows(i, bin_path)
-        out_path = OUTPUT_FRAMES_DIR / f"frame_{i:04d}.csv"
+        out_path = output_frames_dir / f"frame_{i:04d}.csv"
         pd.DataFrame(rows).to_csv(out_path, index=False)
 
-    print(f"Wrote {len(files)} CSV files under {OUTPUT_FRAMES_DIR}")
+    print(f"Wrote {len(files)} CSV files under {output_frames_dir}")
 
 
 if __name__ == "__main__":

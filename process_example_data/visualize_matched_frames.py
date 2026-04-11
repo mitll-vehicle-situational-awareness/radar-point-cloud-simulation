@@ -28,9 +28,6 @@ import pandas as pd
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_ROOT = SCRIPT_DIR / "output_apple_moving"
-DEFAULT_RD_DIR = DEFAULT_ROOT / "range_doppler_per_frame"
-DEFAULT_CAM_DIR = DEFAULT_ROOT / "cam_images"
 
 RD_PATTERN = re.compile(r"frame_(\d+)\.csv$")
 CAM_PATTERN = re.compile(r"image(\d+)\.npy$")
@@ -41,16 +38,21 @@ def parse_args() -> argparse.Namespace:
         description="Visualize matched range-Doppler CSV and camera NPY frames."
     )
     parser.add_argument(
+        "folder",
+        type=str,
+        help="Output folder name (e.g. 'output_tape') containing 'range_doppler_per_frame/' and 'cam_images/'.",
+    )
+    parser.add_argument(
         "--rd-dir",
         type=Path,
-        default=DEFAULT_RD_DIR,
-        help="Directory with frame_XXXX.csv files.",
+        default=None,
+        help="Override directory with frame_XXXX.csv files (defaults to <folder>/range_doppler_per_frame).",
     )
     parser.add_argument(
         "--cam-dir",
         type=Path,
-        default=DEFAULT_CAM_DIR,
-        help="Directory with imageN.npy files.",
+        default=None,
+        help="Override directory with imageN.npy files (defaults to <folder>/cam_images).",
     )
     parser.add_argument(
         "--start-frame",
@@ -155,7 +157,10 @@ def load_peak_rae(csv_path: Path) -> tuple[float, float, float]:
     if missing:
         raise ValueError(f"{csv_path.name} missing columns: {sorted(missing)}")
 
-    targets = df[(df["is_target"] == 1) & (df["range_m"] > 0.5)]
+    if "is_target" in df.columns:
+        targets = df[(df["is_target"] == 1) & (df["range_m"] > 0.5)]
+    else:
+        targets = df[df["range_m"] > 0.5]
     if targets.empty:
         return (0.0, 0.0, 0.0)
 
@@ -170,7 +175,15 @@ def load_peak_rae(csv_path: Path) -> tuple[float, float, float]:
 
 def main() -> None:
     args = parse_args()
-    pairs = collect_frames(args.rd_dir, args.cam_dir, args.start_frame, args.end_frame)
+
+    folder_path = Path(args.folder)
+    if not folder_path.is_absolute():
+        folder_path = SCRIPT_DIR / folder_path
+
+    rd_dir = args.rd_dir if args.rd_dir is not None else folder_path / "range_doppler_per_frame"
+    cam_dir = args.cam_dir if args.cam_dir is not None else folder_path / "cam_images"
+
+    pairs = collect_frames(rd_dir, cam_dir, args.start_frame, args.end_frame)
 
     print(
         f"Found {len(pairs)} matched frames "
