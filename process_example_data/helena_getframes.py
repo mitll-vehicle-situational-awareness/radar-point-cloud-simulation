@@ -24,6 +24,8 @@ from processing import EPSILON, RadarSensor
 _SCRIPT_DIR = Path(__file__).resolve().parent
 
 NUM_FRAMES_TO_EXPORT = 15
+MIN_RANGE = 0 # meters
+MAX_RANGE = None # meters
 
 # OUTPUT_BIN_CONFIG — 48 chirps/frame, 4 RX, 256 ADC (TDM-MIMO with 3 TX -> 16 loops)
 CONFIG_TYPE = "OUTPUT_BIN_CONFIG"
@@ -112,43 +114,20 @@ def frame_to_range_doppler_rows(
         radar = RadarSensor(frame_raw)
         range_cube, rd_cube = radar.process_tdm_mimo_cube(frame_raw)
 
-    # Match processing.py visualization: TX/RX-summed power for [range, doppler].
-    rd_power = np.sum(np.abs(rd_cube) ** 2, axis=(1, 2))
-    rd_db = 10.0 * np.log10(rd_power + EPSILON)
+    if MAX_RANGE is None or MIN_RANGE is None:
+        rd_cube_trimmed = rd_cube
+    else:
+        rd_cube_trimmed, dist_axis = radar.get_range_azimuth_subset(rd_cube, MIN_RANGE, MAX_RANGE)
+        radar.range_axis = dist_axis
     
-    # --- DEBUG STUFF ---
-    # if frame_idx == 0:
-    # expected_shape = (radar.range_axis.size, radar.velocity_axis.size)
-    # print(f"[RD DEBUG] rd_db shape: {rd_db.shape}, expected: {expected_shape}")
-    # if rd_db.shape == expected_shape:
-    #     print("[RD DEBUG] Orientation check: [range, doppler] (no transpose needed).")
-    # elif rd_db.shape == (expected_shape[1], expected_shape[0]):
-    #     print("[RD DEBUG] Orientation check: [doppler, range] (transpose likely needed).")
-    # else:
-    #     print("[RD DEBUG] Orientation check: unexpected shape.")
+    # Match processing.py visualization: TX/RX-summed power for [range, doppler].
+    rd_power = np.sum(np.abs(rd_cube_trimmed) ** 2, axis=(1, 2))
+    rd_db = 10.0 * np.log10(rd_power + EPSILON)
 
-    # # Horizontal mirror check: compare integrated energy at negative vs positive Doppler.
-    # center_d = rd_db.shape[1] // 2
-    # neg_energy = np.mean(rd_db[:, :center_d])
-    # pos_energy = np.mean(rd_db[:, center_d:])
-    # print(
-    #     "[RD DEBUG] Doppler-side mean power (dB) | "
-    #     f"negative: {neg_energy:.2f}, positive: {pos_energy:.2f}, delta(pos-neg): {pos_energy - neg_energy:.2f}"
-    # )
+    print("SHAPE TRIMMED AGAIN: ", rd_cube_trimmed.shape)
 
-    # # Vertical flip check: compare near-range vs far-range energy.
-    # center_r = rd_db.shape[0] // 2
-    # near_energy = np.mean(rd_db[:center_r, :])
-    # far_energy = np.mean(rd_db[center_r:, :])
-    # print(
-    #     "[RD DEBUG] Range-half mean power (dB) | "
-    #     f"near: {near_energy:.2f}, far: {far_energy:.2f}, delta(far-near): {far_energy - near_energy:.2f}"
-    # )
-
-    # -----------------
-
-    n_rng, n_dop = rd_db.shape # 256, 16
-    detections = set(radar.detect_targets_2d(rd_cube)) # returns a list of (rng_idx, dop_idx)
+    n_rng, _, _, n_dop = rd_cube_trimmed.shape # 256, 16
+    detections = set(radar.detect_targets_2d(rd_cube_trimmed)) # returns a list of (rng_idx, dop_idx)
 
     # compute_aoa_fft depends on range bin index (not Doppler bin), so precompute once/range.
     # aoa_per_range = [radar.compute_aoa_fft(range_cube, r) for r in range(n_rng)]

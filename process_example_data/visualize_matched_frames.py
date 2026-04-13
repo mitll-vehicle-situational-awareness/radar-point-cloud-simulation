@@ -26,6 +26,7 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 import pandas as pd
 
+from processing import EPSILON
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -150,7 +151,7 @@ def load_rd_grid(csv_path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return grid, vel_axis, range_axis
 
 
-def load_peak_rae(csv_path: Path) -> tuple[float, float, float]:
+def load_peak_rae(csv_path: Path) -> tuple[float, float, float, float]:
     df = pd.read_csv(csv_path)
     required = {"range_m", "azimuth_deg", "elevation_deg", "magnitude_db"}
     missing = required - set(df.columns)
@@ -162,16 +163,45 @@ def load_peak_rae(csv_path: Path) -> tuple[float, float, float]:
     else:
         targets = df[df["range_m"] > 0.5]
     if targets.empty:
-        return (0.0, 0.0, 0.0)
+        return (0.0, 0.0, 0.0, 0.0)
 
     # peak_row = df.loc[df["magnitude_db"].idxmax()]
     peak_row = targets.loc[targets["magnitude_db"].idxmax()]
+    velocity = float(peak_row.get("velocity_mps", 0.0))
     return (
         float(peak_row["range_m"]),
         float(peak_row["azimuth_deg"]),
         float(peak_row["elevation_deg"]),
+        velocity,
     )
+    
+def get_interp_range_doppler(self, rd_cube, r_idx, d_idx):
+        # Range interpolation
+        r_prev, r_next = r_idx - 1, r_idx + 1
+        y0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
+        y_l = np.sqrt(np.sum(np.abs(rd_cube[r_prev, :, :, d_idx])**2))
+        y_r = np.sqrt(np.sum(np.abs(rd_cube[r_next, :, :, d_idx])**2))
 
+        interp_r = (
+            self.range_axis[r_idx]
+            + (self.range_axis[1] - self.range_axis[0])
+            * ((y_l - y_r) / (2 * (y_l + y_r - 2 * y0 + EPSILON)))
+        ).item()
+
+        # Doppler interpolation
+        d_prev = (d_idx - 1) % self.num_chirp_loops
+        d_next = (d_idx + 1) % self.num_chirp_loops
+        v_l = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_prev])**2))
+        v_r = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_next])**2))
+        v0 = np.sqrt(np.sum(np.abs(rd_cube[r_idx, :, :, d_idx])**2))
+        
+        interp_v = (
+            self.velocity_axis[d_idx]
+            + (self.velocity_axis[1] - self.velocity_axis[0])
+            * ((v_l - v_r) / (2 * (v_l + v_r - 2 * v0 + EPSILON)))
+        ).item()
+        
+        return (interp_r, interp_v)
 
 def main() -> None:
     args = parse_args()
@@ -219,8 +249,12 @@ def main() -> None:
         aspect="auto",
         origin="lower",
         extent=rd_extent,
-        cmap="turbo",
+        cmap="viridis",
     )
+    
+    # Scatter plot for detected target
+    target_scatter = ax_rd.scatter([], [], color="red", marker="o", s=16)
+    
     ax_rd.set_xlabel("Velocity (m/s)")
     ax_rd.set_ylabel("Range (m)")
     cbar = fig.colorbar(rd_im, ax=ax_rd, pad=0.01)
@@ -233,11 +267,14 @@ def main() -> None:
     peak_range: list[float] = []
     peak_azimuth: list[float] = []
     peak_elevation: list[float] = []
+    peak_velocity: list[float] = []
     for _, rd_path, _ in pairs:
-        r_m, az_deg, el_deg = load_peak_rae(rd_path)
+        r_m, az_deg, el_deg, vel_mps = load_peak_rae(rd_path)
+        # ax_rd.plot(interp_v, interp_r, 'ro', markersize=4)
         peak_range.append(r_m)
         peak_azimuth.append(az_deg)
         peak_elevation.append(el_deg)
+        peak_velocity.append(vel_mps)
 
     ax_range.plot(frame_ids, peak_range, label="Range (m)", color="tab:blue", linewidth=1.8)
     current_frame_line_range = ax_range.axvline(
@@ -280,9 +317,28 @@ def main() -> None:
     def draw_current() -> None:
         idx, rd_path, cam_path = pairs[state["pos"]]
         rd_grid, _vel_axis, _range_axis = load_rd_grid(rd_path)
+        vmax = float(rd_grid.max())
+        vmin = vmax - 40.0  # or however you want to derive it
+
         cam_img = np.load(cam_path)
 
         rd_im.set_data(rd_grid.T)
+        rd_im.set_clim(
+            vmin=vmin, 
+            vmax=vmax
+        )
+        
+        # Update target scatter position
+        target_vel = peak_velocity[state["pos"]]
+        target_range = peak_range[state["pos"]]
+        if target_range > 0:  # Only show if valid target detected
+            target_scatter.set_offsets([[target_vel, target_range]])
+        else:
+            target_scatter.set_offsets(np.empty((0, 2)))
+        
+        # interp_r, interp_v = get_interp_range_doppler()
+        # ax_rd.plot(interp_v, interp_r, 'ro', markersize=4)
+        
         cam_im.set_data(cam_img)
         current_frame_line_range.set_xdata([idx, idx])
         current_frame_line_azimuth.set_xdata([idx, idx])

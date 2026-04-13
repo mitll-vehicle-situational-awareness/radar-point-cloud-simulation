@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 # global
 EPSILON = 1e-12
 DEBUG_RD_LOGIC = True
+MIN_RANGE = 0 # meters
+MAX_RANGE = 2 # meters
+
 
 class RadarSensor:
     def __init__(self, sample):
@@ -67,6 +70,12 @@ class RadarSensor:
         # Range FFT
         range_cube = np.fft.fft(data * range_win, axis=0)
 
+        # Apply Range Compensation
+        N = range_cube.shape[0] # num of range samples
+        r = np.arange(0, N)
+        compensation = np.minimum(r**2, (N/2)**2)
+        range_cube *= compensation[:, None, None, None]
+
         # Doppler FFT
         rd_cube_txrx = np.fft.fft(range_cube * doppler_win, axis=3, n=self.doppler_fft_size)
         rd_cube_txrx = np.fft.fftshift(rd_cube_txrx, axes=3)
@@ -88,6 +97,7 @@ class RadarSensor:
         Input: radar_cube: [range_bin, tx, rx, doppler_bin]
         Output: detections: list of (range_idx, doppler_idx)
         """
+        print("TRIMMED SHAPE: ", radar_cube.shape)
 
         # Sum across TX and RX to get integrated RD power
         range_doppler_power = np.sum(np.abs(radar_cube) ** 2, axis=(1, 2))
@@ -193,7 +203,9 @@ class RadarSensor:
         
         aoa_2d_fft = np.fft.fftshift(np.fft.fft2(ant_grid, s=(64, 64)))
         mag_sq = np.abs(aoa_2d_fft)**2
-        el_idx, az_idx = np.unravel_index(np.argmax(mag_sq), mag_sq.shape)
+        
+        # print(mag_sq)
+        el_idx, az_idx = np.unravel_index(np.argmax(mag_sq), mag_sq.shape) # WTF
         
         # Convert bins to angles
         bins = np.fft.fftshift(np.fft.fftfreq(64))
@@ -229,6 +241,21 @@ class RadarSensor:
         ).item()
         
         return (interp_r, interp_v)
+
+    def get_range_azimuth_subset(self, rd_cube, min_range, max_range):
+        # dist_axis = np.linspace(0, NUM_ADC_SAMPLES * RANGE_RESOLUTION, NUM_ADC_SAMPLES)
+        dist_axis = np.linspace(0, self.num_adc_samples * self.range_res, self.num_adc_samples)
+
+        min_dist = np.abs(dist_axis - min_range)
+        max_dist = np.abs(dist_axis - max_range)
+
+        min_index = np.argmin(min_dist)
+        max_index = np.argmin(max_dist)
+
+        print(f'min index: {min_index}')
+        print(f'max index: {max_index}')
+
+        return rd_cube[min_index : max_index, :, :, :], dist_axis[min_index : max_index]
 
 def _prepare_output_dirs():
     log_dir = "logs"
@@ -352,9 +379,9 @@ def _process_detections(ax_rd, ax_bev, ax_rp, radar, range_cube, rd_cube, detect
         bev_range = np.sqrt(mx**2 + my**2)
         print("RD range:", radar.range_axis[r_idx])
         print("BEV slant range:", bev_range)
-        print("angle (deg): ", m_aoa_deg)
-        print("mx:", mx)
-        print("my:", my)
+        # print("angle (deg): ", m_aoa_deg)
+        # print("mx:", mx)
+        # print("my:", my)
 
         ax_bev.plot(mx, my, 'bo')
         log_handle.write(
@@ -389,15 +416,22 @@ def run_radar_simulation(ss):
             # virtual antenna order:
             # [TX0-RX0, TX0-RX1, ..., TX1-RX0, ..., TX2-RX3]
             range_cube, rd_cube = radar.process_tdm_mimo_cube(raw_frame)
-            detections = radar.detect_targets_2d(rd_cube)
+            
+            if MAX_RANGE is None or MIN_RANGE is None:
+                rd_cube_trimmed = rd_cube
+            else:
+                rd_cube_trimmed, dist_axis = radar.get_range_azimuth_subset(rd_cube, MIN_RANGE, MAX_RANGE)
+                radar.range_axis = dist_axis
 
-            cbar = _plot_range_doppler(ax_rd, fig, cbar, radar, rd_cube, frame_idx)
+            detections = radar.detect_targets_2d(rd_cube_trimmed)
+
+            cbar = _plot_range_doppler(ax_rd, fig, cbar, radar, rd_cube_trimmed, frame_idx)
             _plot_bev(ax_bev, detections)
 
             processing_time = (time.time() - start_time) * 1000  # in ms
             f.write(f"\nFRAME {frame_idx} | Timestamp: {time.time():.4f} | Latency: {processing_time:.2f}ms\n")
 
-            _process_detections(ax_rd, ax_bev, ax_rp, radar, range_cube, rd_cube, detections, f)
+            _process_detections(ax_rd, ax_bev, ax_rp, radar, range_cube, rd_cube_trimmed, detections, f)
 
             plt.tight_layout()
             plt.draw()

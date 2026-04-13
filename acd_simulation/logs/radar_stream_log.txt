@@ -1,100 +1,200 @@
 
-FRAME 0 | Timestamp: 1775585859.7128 | Latency: 72.86ms
-OBJECT DETECTED! velocity: 0.001 | slant range: 0.664
-  > R: 0.664m | V: 0.001m/s | A:-48.59deg | X:-0.498 | Y: 0.439
-OBJECT DETECTED! velocity: 0.005 | slant range: 1.038
-  > R: 1.038m | V: 0.005m/s | A:-20.11deg | X:-0.357 | Y: 0.974
-OBJECT DETECTED! velocity: 0.000 | slant range: 3.480
-  > R: 3.480m | V: 0.000m/s | A: -5.38deg | X:-0.326 | Y: 3.465
-OBJECT DETECTED! velocity: 0.001 | slant range: 3.961
-  > R: 3.961m | V: 0.001m/s | A: -3.58deg | X:-0.248 | Y: 3.954
-OBJECT DETECTED! velocity: 0.000 | slant range: 4.292
-  > R: 4.292m | V: 0.000m/s | A: -5.38deg | X:-0.402 | Y: 4.273
-OBJECT DETECTED! velocity: 0.003 | slant range: 7.689
-  > R: 7.689m | V: 0.003m/s | A: 30.00deg | X: 3.844 | Y: 6.659
-OBJECT DETECTED! velocity: -0.006 | slant range: 8.180
-  > R: 8.180m | V:-0.006m/s | A: 36.42deg | X: 4.857 | Y: 6.582
+FRAME 0 | Timestamp: 1776049390.3377 | Latency: 60.16ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.670
+  > R: 0.670m | V:-0.449m/s | A:-48.59deg | X:-0.502 | Y: 0.443
 
-FRAME 1 | Timestamp: 1775585860.3849 | Latency: 48.04ms
-OBJECT DETECTED! velocity: -0.007 | slant range: 0.637
-  > R: 0.637m | V:-0.007m/s | A:-48.59deg | X:-0.478 | Y: 0.421
-OBJECT DETECTED! velocity: -0.002 | slant range: 0.686
-  > R: 0.686m | V:-0.002m/s | A:-51.38deg | X:-0.536 | Y: 0.428
+FRAME 1 | Timestamp: 1776049391.0629 | Latency: 84.33ms
+OBJECT DETECTED! velocity: -0.468 | slant range: 0.699
+  > R: 0.699m | V:-0.468m/s | A:-51.38deg | X:-0.546 | Y: 0.436
 
-FRAME 2 | Timestamp: 1775585860.6084 | Latency: 58.81ms
-OBJECT DETECTED! velocity: 0.001 | slant range: 0.636
-  > R: 0.636m | V: 0.001m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.688
-  > R: 0.688m | V: 0.000m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 2 | Timestamp: 1776049391.3128 | Latency: 61.19ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 3 | Timestamp: 1775585860.8414 | Latency: 83.45ms
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.636
-  > R: 0.636m | V:-0.001m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.688
-  > R: 0.688m | V:-0.001m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 3 | Timestamp: 1776049391.6255 | Latency: 46.30ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 4 | Timestamp: 1775585861.1393 | Latency: 54.46ms
-OBJECT DETECTED! velocity: -0.000 | slant range: 0.636
-  > R: 0.636m | V:-0.000m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.688
-  > R: 0.688m | V:-0.001m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 4 | Timestamp: 1776049391.8617 | Latency: 32.48ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 5 | Timestamp: 1775585861.4539 | Latency: 49.08ms
-OBJECT DETECTED! velocity: -0.002 | slant range: 0.636
-  > R: 0.636m | V:-0.002m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.002 | slant range: 0.688
-  > R: 0.688m | V:-0.002m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 5 | Timestamp: 1776049392.1666 | Latency: 34.60ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 6 | Timestamp: 1775585861.7418 | Latency: 57.70ms
-OBJECT DETECTED! velocity: -0.000 | slant range: 0.636
-  > R: 0.636m | V:-0.000m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.688
-  > R: 0.688m | V: 0.000m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 6 | Timestamp: 1776049392.4215 | Latency: 37.39ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 7 | Timestamp: 1775585862.0286 | Latency: 61.89ms
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.636
-  > R: 0.636m | V:-0.001m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.688
-  > R: 0.688m | V:-0.001m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 7 | Timestamp: 1776049392.7157 | Latency: 51.44ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 8 | Timestamp: 1775585862.2257 | Latency: 53.70ms
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.636
-  > R: 0.636m | V: 0.000m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.000 | slant range: 0.688
-  > R: 0.688m | V:-0.000m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 8 | Timestamp: 1776049392.9967 | Latency: 48.98ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 9 | Timestamp: 1775585862.5593 | Latency: 81.30ms
-OBJECT DETECTED! velocity: -0.002 | slant range: 0.636
-  > R: 0.636m | V:-0.002m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.002 | slant range: 0.688
-  > R: 0.688m | V:-0.002m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 9 | Timestamp: 1776049393.2981 | Latency: 55.63ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 10 | Timestamp: 1775585862.8041 | Latency: 69.62ms
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.636
-  > R: 0.636m | V: 0.000m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: 0.001 | slant range: 0.688
-  > R: 0.688m | V: 0.001m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 10 | Timestamp: 1776049393.5988 | Latency: 30.71ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 11 | Timestamp: 1775585863.0554 | Latency: 62.18ms
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.636
-  > R: 0.636m | V:-0.001m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.688
-  > R: 0.688m | V:-0.001m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 11 | Timestamp: 1776049393.8598 | Latency: 34.78ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 12 | Timestamp: 1775585863.2863 | Latency: 64.49ms
-OBJECT DETECTED! velocity: 0.001 | slant range: 0.636
-  > R: 0.636m | V: 0.001m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.688
-  > R: 0.688m | V: 0.000m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 12 | Timestamp: 1776049394.1721 | Latency: 39.47ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 13 | Timestamp: 1775585863.5551 | Latency: 65.62ms
-OBJECT DETECTED! velocity: -0.001 | slant range: 0.636
-  > R: 0.636m | V:-0.001m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: -0.000 | slant range: 0.688
-  > R: 0.688m | V:-0.000m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 13 | Timestamp: 1776049394.4700 | Latency: 40.13ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
 
-FRAME 14 | Timestamp: 1775585864.1002 | Latency: 124.12ms
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.636
-  > R: 0.636m | V: 0.000m/s | A:-51.38deg | X:-0.497 | Y: 0.397
-OBJECT DETECTED! velocity: 0.000 | slant range: 0.688
-  > R: 0.688m | V: 0.000m/s | A:-43.43deg | X:-0.473 | Y: 0.499
+FRAME 14 | Timestamp: 1776049394.7342 | Latency: 36.63ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 15 | Timestamp: 1776049395.0128 | Latency: 48.39ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 16 | Timestamp: 1776049395.2891 | Latency: 40.98ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 17 | Timestamp: 1776049395.5749 | Latency: 41.71ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 18 | Timestamp: 1776049395.8465 | Latency: 47.87ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 19 | Timestamp: 1776049396.1593 | Latency: 46.20ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 20 | Timestamp: 1776049396.4158 | Latency: 34.48ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 21 | Timestamp: 1776049396.7083 | Latency: 39.06ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 22 | Timestamp: 1776049397.0095 | Latency: 47.79ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 23 | Timestamp: 1776049397.2628 | Latency: 35.59ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 24 | Timestamp: 1776049397.5114 | Latency: 45.17ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 25 | Timestamp: 1776049397.7657 | Latency: 32.45ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 26 | Timestamp: 1776049398.0788 | Latency: 49.31ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 27 | Timestamp: 1776049398.3688 | Latency: 56.99ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 28 | Timestamp: 1776049398.6795 | Latency: 49.98ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 29 | Timestamp: 1776049398.9632 | Latency: 30.35ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 30 | Timestamp: 1776049399.2680 | Latency: 38.25ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 31 | Timestamp: 1776049399.5517 | Latency: 38.63ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 32 | Timestamp: 1776049399.8534 | Latency: 48.03ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 33 | Timestamp: 1776049400.1147 | Latency: 43.66ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 34 | Timestamp: 1776049400.3893 | Latency: 57.04ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 35 | Timestamp: 1776049400.5737 | Latency: 48.66ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 36 | Timestamp: 1776049400.8228 | Latency: 36.33ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 37 | Timestamp: 1776049401.1856 | Latency: 57.51ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 38 | Timestamp: 1776049401.4816 | Latency: 38.08ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 39 | Timestamp: 1776049401.7273 | Latency: 34.87ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 40 | Timestamp: 1776049401.9986 | Latency: 39.79ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 41 | Timestamp: 1776049402.2636 | Latency: 47.55ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 42 | Timestamp: 1776049402.5414 | Latency: 41.38ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 43 | Timestamp: 1776049402.8205 | Latency: 38.44ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 44 | Timestamp: 1776049403.0916 | Latency: 42.73ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 45 | Timestamp: 1776049403.3613 | Latency: 45.87ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 46 | Timestamp: 1776049403.6367 | Latency: 41.33ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 47 | Timestamp: 1776049403.9041 | Latency: 43.29ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 48 | Timestamp: 1776049404.1587 | Latency: 45.00ms
+OBJECT DETECTED! velocity: -0.449 | slant range: 0.700
+  > R: 0.700m | V:-0.449m/s | A:-43.43deg | X:-0.481 | Y: 0.508
+
+FRAME 49 | Timestamp: 1776049404.4535 | Latency: 33.31ms
+OBJECT DETECTED! velocity: -0.450 | slant range: 0.700
+  > R: 0.700m | V:-0.450m/s | A:-43.43deg | X:-0.481 | Y: 0.508
