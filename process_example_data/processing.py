@@ -25,6 +25,7 @@ class RadarSensor:
 
         # Total chirps in the frame
         self.num_chirps = self.num_chirp_loops * self.num_tx
+        # self.virtual_
 
         bw = 3.41e9
         slope = bw / (self.num_adc_samples / fs)
@@ -93,38 +94,29 @@ class RadarSensor:
         doppler_threshold_db=10.0,
     ):
         """
-        Two-stage CFAR detector
-        Input: radar_cube: [range_bin, tx, rx, doppler_bin]
-        Output: detections: list of (range_idx, doppler_idx)
-        """
-        print("TRIMMED SHAPE: ", radar_cube.shape)
+        Two-stage CFAR detector on the range-doppler map.
 
-        # Sum across TX and RX to get integrated RD power
+        radar_cube shape: [range_bin, tx, rx, doppler_bin]
+        returns: list of (range_idx, doppler_idx)
+        """
+        # Collapse TX/RX so CFAR runs on a 2D RD power map.
         range_doppler_power = np.sum(np.abs(radar_cube) ** 2, axis=(1, 2))
 
         num_range_bins, num_doppler_bins = range_doppler_power.shape
-        # print("NUM OF BINS: ", range_doppler_power.shape)
 
-        # Boolean maps for each CFAR stage
+        # Per-stage pass masks.
         range_pass = np.zeros_like(range_doppler_power, dtype=bool)
         doppler_pass = np.zeros_like(range_doppler_power, dtype=bool)
 
-        # ============================================================
-        # First pass: CASO-CFAR along RANGE axis
-        # CASO = Cell Averaging Smaller Of
-        #
-        # For each CUT, compute:
-        #   left noise estimate
-        #   right noise estimate
-        # Use the smaller of the two as the noise estimate.
-        # ============================================================
+        # Pass 1: CASO-CFAR along range, independently for each doppler bin.
+        # CASO = take the smaller left/right noise estimate.
         range_scale = 10 ** (range_threshold_db / 10.0)
 
         for d in range(num_doppler_bins):
             for r in range(range_train + range_guard, num_range_bins - (range_train + range_guard)):
                 cut_power = range_doppler_power[r, d]
 
-                # Training windows on left and right of CUT
+                # Training windows around CUT (guard cells excluded).
                 left_start = r - range_guard - range_train
                 left_end = r - range_guard
                 right_start = r + range_guard + 1
@@ -133,18 +125,14 @@ class RadarSensor:
                 left_noise = np.mean(range_doppler_power[left_start:left_end, d])
                 right_noise = np.mean(range_doppler_power[right_start:right_end, d])
 
-                # CASO picks the smaller of the two side estimates
+                # Use the quieter side to reduce target leakage into threshold.
                 noise_est = min(left_noise, right_noise)
                 threshold = noise_est * range_scale
 
                 if cut_power > threshold and cut_power > 0:
                     range_pass[r, d] = True
 
-        # ============================================================
-        # Second pass: CA-CFAR along DOPPLER axis
-        #
-        # Only evaluate cells that already passed the range CASO test.
-        # ============================================================
+        # Pass 2: CA-CFAR along doppler, only for cells that passed pass 1.
         doppler_scale = 10 ** (doppler_threshold_db / 10.0)
 
         for r in range(num_range_bins):
@@ -154,7 +142,7 @@ class RadarSensor:
 
                 cut_power = range_doppler_power[r, d]
 
-                # Training windows on left and right of CUT in Doppler
+                # Doppler training windows around CUT.
                 left_start = d - doppler_guard - doppler_train
                 left_end = d - doppler_guard
                 right_start = d + doppler_guard + 1
@@ -163,17 +151,14 @@ class RadarSensor:
                 left_noise = range_doppler_power[r, left_start:left_end]
                 right_noise = range_doppler_power[r, right_start:right_end]
 
-                # Standard CA-CFAR uses both sides
+                # Standard CA-CFAR averages both sides.
                 noise_est = np.mean(np.concatenate((left_noise, right_noise)))
                 threshold = noise_est * doppler_scale
 
                 if cut_power > threshold and cut_power > 0:
                     doppler_pass[r, d] = True
 
-        # ============================================================
-        # Final detections:
-        # cell must pass both CFAR stages and be a local maximum
-        # ============================================================
+        # Final gate: keep local 3x3 maxima from cells that passed both stages.
         detections = []
 
         candidates = np.argwhere(doppler_pass)
@@ -188,27 +173,78 @@ class RadarSensor:
                 detections.append((r, d))
 
         return detections
+    
+    # phaser = np.exp(j * 2 * np.pi * np.sin(theta))
+    # x1 x2
+    # x3 x4
+    
+    # adding the phase shift to the opposite side that we want to look
+    # 
+    
+    
+    # def get_angle_spectrum_from_virtual_array(self, rd_cube_txrx, r_idx, d_idx):         
+    #     ant_slice = rd_cube_txrx[r_idx, :, :, d_idx].copy()
 
-    def compute_aoa_fft(self, range_cube, r_idx, tx_idx=0):        
+    #     # convert shifted Doppler index to signed Doppler bin
+    #     doppler_bin_signed = d_idx - (self.num_chirp_loops // 2)
+    #     omega = 2.0 * np.pi * doppler_bin_signed / self.num_chirp_loops
+
+    #     # TDM-MIMO compensation:
+    #     # TX1 delay = 0 chirps
+    #     # TX2 delay = 1 chirp
+    #     # TX3 delay = 2 chirps
+    #     for tx_idx in range(self.num_tx):
+    #         phase_corr = np.exp(-1j * omega * tx_idx)
+    #         ant_slice[tx_idx, :] *= phase_corr
+
+    #     # Flatten as [TX0RX0...RXn, TX1RX0...RXn, ...]
+    #     ant_vec = ant_slice.reshape(self.num_tx * self.num_rx)
+    #     angle_fft = np.fft.fftshift(np.fft.fft(ant_vec, n=self.num_angle_bins))
+    #     angle_spectrum = np.abs(angle_fft) ** 2
+    #     return angle_spectrum
+
+    def compute_aoa_fft(self, range_cube, r_idx, d_idx, tx_idx=0):   
+        """
+        Compute angle of arrival (AoA) in azimuth and elevation using 2D FFT.
+        This method performs 2D FFT on a 2x2 antenna grid to estimate the direction
+        of arrival of a signal at a specific range bin and Doppler bin.
+        Args:
+            range_cube: 4D array of radar data with shape (range, tx, rx, doppler)
+            r_idx (int): Range bin index
+            d_idx (int): Doppler bin index
+            tx_idx (int, optional): Transmitter index. Defaults to 0.
+        Returns:
+            tuple: (az_deg, el_deg) where:
+                - az_deg (float): Azimuth angle in degrees
+                - el_deg (float): Elevation angle in degrees
+        Notes:
+            - Extracts 4 receiver antenna samples at the specified range and Doppler bins
+            - Reshapes antennas into 2x2 spatial grid based on antenna geometry
+            - Applies 2D FFT with 64x64 zero-padding
+            - Finds peak in power spectrum (magnitude squared)
+            - Converts FFT bin indices to angles using arcsin mapping
+        """
         # two pairs across azimuth / elevation
         # compute the phase shift between the pair
         
-        ant = range_cube[r_idx, tx_idx, :, 0] # [RX0, RX1, RX2, RX3]
+        ant = range_cube[r_idx, tx_idx, :, d_idx] # [RX0, RX1, RX2, RX3]
     
         # Reshape into 2x2 grid based on AOP geometry
+        
         ant_grid = np.array([
-            [ant[0], ant[2]],
-            [ant[1], ant[3]]
+            [ant[0], ant[2]], # 1, 3
+            [ant[1], ant[3]] # 2, 4
         ])
         
-        aoa_2d_fft = np.fft.fftshift(np.fft.fft2(ant_grid, s=(64, 64)))
-        mag_sq = np.abs(aoa_2d_fft)**2
+        # zero-padding 128x128
+        aoa_2d_fft = np.fft.fftshift(np.fft.fft2(ant_grid, s=(128, 128)))
+        mag_sq = np.abs(aoa_2d_fft)**2 # power spectrum
         
-        # print(mag_sq)
-        el_idx, az_idx = np.unravel_index(np.argmax(mag_sq), mag_sq.shape) # WTF
-        
+        # find argmax -> turn idx into tuple of coordinates matching og shape
+        el_idx, az_idx = np.unravel_index(np.argmax(mag_sq), mag_sq.shape)
+
         # Convert bins to angles
-        bins = np.fft.fftshift(np.fft.fftfreq(64))
+        bins = np.fft.fftshift(np.fft.fftfreq(128))
         az_deg = np.degrees(np.arcsin(np.clip(2 * bins[az_idx], -1.0, 1.0)))
         el_deg = np.degrees(np.arcsin(np.clip(2 * bins[el_idx], -1.0, 1.0)))
         
@@ -368,7 +404,7 @@ def _process_detections(ax_rd, ax_bev, ax_rp, radar, range_cube, rd_cube, detect
 
         _plot_range_profile(ax_rp, radar, rd_cube)
 
-        m_aoa_deg, m_elev_deg = radar.compute_aoa_fft(range_cube, r_idx)
+        m_aoa_deg, m_elev_deg = radar.compute_aoa_fft(range_cube, r_idx, d_idx)
 
         print("AZIMUTH: ", m_aoa_deg)
         print("ELEVATION: ", m_elev_deg)

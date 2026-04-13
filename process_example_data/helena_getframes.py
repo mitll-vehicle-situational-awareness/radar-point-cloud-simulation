@@ -25,7 +25,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 
 NUM_FRAMES_TO_EXPORT = 15
 MIN_RANGE = 0 # meters
-MAX_RANGE = None # meters
+MAX_RANGE = 2 # meters
 
 # OUTPUT_BIN_CONFIG — 48 chirps/frame, 4 RX, 256 ADC (TDM-MIMO with 3 TX -> 16 loops)
 CONFIG_TYPE = "OUTPUT_BIN_CONFIG"
@@ -124,28 +124,20 @@ def frame_to_range_doppler_rows(
     rd_power = np.sum(np.abs(rd_cube_trimmed) ** 2, axis=(1, 2))
     rd_db = 10.0 * np.log10(rd_power + EPSILON)
 
-    print("SHAPE TRIMMED AGAIN: ", rd_cube_trimmed.shape)
+    # print("SHAPE TRIMMED AGAIN: ", rd_cube_trimmed.shape)
 
     n_rng, _, _, n_dop = rd_cube_trimmed.shape # 256, 16
     detections = set(radar.detect_targets_2d(rd_cube_trimmed)) # returns a list of (rng_idx, dop_idx)
-
-    # compute_aoa_fft depends on range bin index (not Doppler bin), so precompute once/range.
-    # aoa_per_range = [radar.compute_aoa_fft(range_cube, r) for r in range(n_rng)]
-    # rows = []
-    # for d in range(n_dop):
-    #     for r in range(n_rng):
-    #         azimuth_deg, elevation_deg = aoa_per_range[r]
     
     rows = []
     for r in range(n_rng):
-        has_detection = any((r, d) in detections for d in range(n_dop))
-        if has_detection:
-            azimuth_deg, elevation_deg = radar.compute_aoa_fft(range_cube, r)
-        else:
-            azimuth_deg, elevation_deg = 0.0, 0.0
-
         for d in range(n_dop):
             is_target = (r, d) in detections
+            if is_target:
+                azimuth_deg, elevation_deg = radar.compute_aoa_fft(range_cube, r, d)
+            else:
+                azimuth_deg, elevation_deg = 0.0, 0.0
+
             rows.append(
                 {
                     "frame": frame_idx,
