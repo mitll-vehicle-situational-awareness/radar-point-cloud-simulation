@@ -43,6 +43,16 @@ class RadarSensor:
         slow_time_dt = chirp_time * self.num_tx
         doppler_freq = np.fft.fftshift(np.fft.fftfreq(self.doppler_fft_size, d=slow_time_dt))
         self.velocity_axis = doppler_freq * (self.wavelength / 2.0)
+        
+        # 120 degrees in az
+        # 80 degrees in el
+        self.num_az_positions = 7
+        self.num_el_positions = 7
+        self.az_resolution = 120 // (self.num_az_positions - 1) # 120 degrees is camera angular width
+        self.el_resolution = 80 // (self.num_el_positions - 1) # 80 degrees is camera angular height
+        self.az_angles = np.array([])
+        self.el_angles = np.array([])
+        self.steering_array = self.create_steering_array()
 
         print(sample.shape)
         print("range_res: ", self.range_res)
@@ -202,6 +212,60 @@ class RadarSensor:
     #     angle_fft = np.fft.fftshift(np.fft.fft(ant_vec, n=self.num_angle_bins))
     #     angle_spectrum = np.abs(angle_fft) ** 2
     #     return angle_spectrum
+    
+    def create_steering_array(self):
+        # azimuth_resolution = spacing between each partition (aka. the angle difference)
+
+        # e.g., 3x3 grid
+        # up, right = positive
+        # down, left = negative
+
+        # (-45, 45)  (0, 45)  (45, 45)
+        # (-45, 0)   (0, 0)   (45, 0)
+        # (-45, -45) (0, -45) (45, -45)
+
+        steering_grid = np.empty((self.num_az_positions, self.num_el_positions, 4)) # vectors
+
+        az_0, el_0 = self.num_az_positions // 2, self.num_el_positions // 2 # get the center starting point
+        
+        # e.g. [-1, 0, -1] * 45 = [-45, 0, 45]
+        self.az_angles = (np.arange(-1 * az_0, az_0 + 1)) * self.az_resolution
+        self.el_angles = (np.arange(-1 * el_0, el_0 + 1)) * self.el_resolution
+        
+        print("AZ ANGLES: ", self.az_angles)
+        print("EL ANGLES: ", self.el_angles)
+        
+        for i, az_theta in enumerate(self.az_angles):
+            for j, el_theta in enumerate(self.el_angles):
+                steering_grid[i, j, :] = [1, \
+                                       np.exp(2*np.pi*np.sin(az_theta)), \
+                                       np.exp(2*np.pi*(np.sin(el_theta))), \
+                                       np.exp((2*np.pi*(np.sin(az_theta)))*(2*np.pi*(np.sin(el_theta))))]
+
+                # each steering grid cell is the 2x2 matrix we dot product it w our measured 2x2          
+    
+        return steering_grid
+    
+    # TODO: change function name bruv
+    def phased_array_aoa(self, rd_cube, r_idx, d_idx):        
+        ant_array = rd_cube[r_idx, 0, :, d_idx] # shape = 4
+                
+        running_max = 0
+        max_location = np.zeros(2, dtype=int)
+        
+        for i in range(self.num_az_positions):
+            for j in range(self.num_el_positions):
+                result = np.dot(self.steering_array[i, j, :], ant_array)
+                if result > running_max:
+                    running_max = result
+                    max_location[0] = i
+                    max_location[1] = j
+
+        print("STEERING: ", self.steering_array)
+        print("AZ ANGLES: ", self.az_angles)
+        print("EL ANGLES: ", self.el_angles)
+
+        return self.az_angles[max_location[0]], self.el_angles[max_location[1]]
 
     def compute_aoa_fft(self, range_cube, r_idx, d_idx, tx_idx=0):   
         """
@@ -404,7 +468,8 @@ def _process_detections(ax_rd, ax_bev, ax_rp, radar, range_cube, rd_cube, detect
 
         _plot_range_profile(ax_rp, radar, rd_cube)
 
-        m_aoa_deg, m_elev_deg = radar.compute_aoa_fft(range_cube, r_idx, d_idx)
+        # m_aoa_deg, m_elev_deg = radar.compute_aoa_fft(range_cube, r_idx, d_idx)
+        m_aoa_deg, m_elev_deg = radar.phased_array_aoa(range_cube, r_idx, d_idx)
 
         print("AZIMUTH: ", m_aoa_deg)
         print("ELEVATION: ", m_elev_deg)

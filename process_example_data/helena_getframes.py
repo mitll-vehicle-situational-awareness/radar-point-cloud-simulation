@@ -23,7 +23,7 @@ from processing import EPSILON, RadarSensor
 # Paths (script lives in acd_simulation/)
 _SCRIPT_DIR = Path(__file__).resolve().parent
 
-NUM_FRAMES_TO_EXPORT = 15
+NUM_FRAMES_TO_EXPORT = 10
 MIN_RANGE = 0 # meters
 MAX_RANGE = 2 # meters
 
@@ -134,7 +134,7 @@ def frame_to_range_doppler_rows(
         for d in range(n_dop):
             is_target = (r, d) in detections
             if is_target:
-                azimuth_deg, elevation_deg = radar.compute_aoa_fft(range_cube, r, d)
+                azimuth_deg, elevation_deg = radar.phased_array_aoa(range_cube, r, d)
             else:
                 azimuth_deg, elevation_deg = 0.0, 0.0
 
